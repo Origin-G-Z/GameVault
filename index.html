@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameVault · 我的游戏档案</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Game<span>Vault</span></a>
+    <nav class="nav">
+      <a href="index.html" class="active">首页</a>
+      <a href="pages/manage.html">管理</a>
+      <a href="pages/about.html">关于</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="page-hero">
+      <h1>我的游戏<span>档案</span></h1>
+      <p>记录玩过与喜欢的游戏，按平台和类型快速找到它们。</p>
+    </section>
+
+    <section class="toolbar">
+      <div class="tabs" role="tablist" aria-label="游戏分类">
+        <button class="tab active" data-tab="played" role="tab" aria-selected="true">
+          我玩过的 <span class="count" id="playedCount">0</span>
+        </button>
+        <button class="tab" data-tab="favorite" role="tab" aria-selected="false">
+          我喜欢的 <span class="count" id="favCount">0</span>
+        </button>
+      </div>
+
+      <label class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
+        <input type="search" id="searchInput" placeholder="搜索游戏名…" autocomplete="off">
+      </label>
+    </section>
+
+    <section class="filters" aria-label="筛选条件">
+      <div class="filter-row" id="platformFilter">
+        <span class="filter-label">平台</span>
+        <button class="chip active" data-value="all">全部</button>
+        <button class="chip" data-value="PC">PC</button>
+        <button class="chip" data-value="Switch">Switch</button>
+        <button class="chip" data-value="PS5">PS5</button>
+        <button class="chip" data-value="Mobile">Mobile</button>
+      </div>
+      <div class="filter-row" id="genreFilter">
+        <span class="filter-label">类型</span>
+        <button class="chip active" data-value="all">全部</button>
+        <button class="chip" data-value="RPG">RPG</button>
+        <button class="chip" data-value="动作">动作</button>
+        <button class="chip" data-value="独立">独立</button>
+        <button class="chip" data-value="策略">策略</button>
+        <button class="chip" data-value="模拟">模拟</button>
+        <button class="chip" data-value="竞速">竞速</button>
+      </div>
+    </section>
+
+    <p class="result-info" id="resultInfo"></p>
+
+    <section class="game-grid" id="gameGrid" aria-live="polite"></section>
+
+    <div class="empty" id="emptyState" hidden>
+      <div class="empty-icon">🎮</div>
+      <h3>没有找到符合条件的游戏</h3>
+      <p>试试切换 Tab、放宽筛选条件，或清空搜索关键字。</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © 2026 GameVault · 课程演示项目 · 数据为本地数据
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>
