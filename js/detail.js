@@ -1,120 +1,102 @@
-/* ========== detail.js · 详情页逻辑 ========== */
-(function () {
-  "use strict";
+// js/detail.js
+import { GAMES } from './registry.js';
+import { renderGame } from './renderer.js';
 
-  const mainEl = document.getElementById("detailMain");
-  const state = getState();
+const appEl = document.getElementById('app');
+const backToTopBtn = document.getElementById('back-to-top'); 
 
-  // 1. 获取 URL 中的 id 参数
+async function init() {
+  // 1. 获取 URL 参数 ?id=xxx
   const params = new URLSearchParams(window.location.search);
-  const gameId = params.get("id");
-
-  if (!gameId) {
-    renderError("未找到游戏 ID，请从首页进入。");
-    return;
-  }
-
-  // 2. 查找数据
-  const allGames = getAllGames();
-  const game = allGames.find(g => String(g.id) === String(gameId));
-
-  if (!game) {
-    renderError("游戏不存在或已被删除。");
-    return;
-  }
-
-  // 3. 设置页面标题
-  document.title = `${game.title} - GameVault`;
-
-  // 4. 判断是否收藏
-  const isFav = state.favorites.includes(game.id);
-
-  // 5. 渲染页面
-  // 如果没有写 detailContent，就使用默认的 description 兜底
-  const articleContent = game.detailContent 
-    ? game.detailContent 
-    : `<p>${escapeHTML(game.description)}</p><br><p style="color:var(--text-dim)">（该游戏的详细评测正在编写中，敬请期待…）</p>`;
-
-  const html = `
-    <section class="hero-section">
-      <div class="hero-cover" style="background:${game.cover}">
-        <span>${escapeHTML(game.title.charAt(0))}</span>
-      </div>
-      <div class="hero-info">
-        <h1 class="hero-title">${escapeHTML(game.title)}</h1>
-        <div class="hero-tags">
-          <span class="tag">${escapeHTML(game.platform)}</span>
-          <span class="tag">${escapeHTML(game.genre)}</span>
-          <span class="tag">${game.year} 年</span>
-        </div>
-        
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-label">综合评分</span>
-            <span class="stat-value rating">★ ${Number(game.rating).toFixed(1)}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">游玩时长</span>
-            <span class="stat-value">${game.hours} 小时</span>
-          </div>
-        </div>
-
-        <div class="hero-actions">
-          <a href="../index.html" class="btn btn-back">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
-            返回首页
-          </a>
-          <button class="btn btn-fav ${isFav ? 'active' : ''}" id="favBtn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <span id="favText">${isFav ? '已加入喜欢' : '加入喜欢'}</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <section class="article-section">
-      <article class="prose">
-        ${articleContent}
-      </article>
-    </section>
-  `;
-
-  mainEl.innerHTML = html;
-
-  // 6. 绑定收藏按钮点击事件
-  const favBtn = document.getElementById("favBtn");
-  const favText = document.getElementById("favText");
+  const id = params.get('id');
   
-  favBtn.addEventListener("click", () => {
-    // 重新读取最新状态
-    const currentState = getState();
-    const idx = currentState.favorites.indexOf(game.id);
-    
-    if (idx > -1) {
-      // 取消收藏
-      currentState.favorites.splice(idx, 1);
-      favBtn.classList.remove("active");
-      favBtn.querySelector("svg").setAttribute("fill", "none");
-      favText.textContent = "加入喜欢";
-    } else {
-      // 添加收藏
-      currentState.favorites.push(game.id);
-      favBtn.classList.add("active");
-      favBtn.querySelector("svg").setAttribute("fill", "currentColor");
-      favText.textContent = "已加入喜欢";
-    }
-    
-    saveState(currentState);
-  });
-
-  // 错误提示
-  function renderError(msg) {
-    mainEl.innerHTML = `
-      <div class="error-msg">
-        <h2>⚠️ ${msg}</h2>
-        <br>
-        <a href="../index.html" class="btn btn-back" style="display:inline-flex; width:auto;">返回首页</a>
-      </div>
-    `;
+  // 2. 查找游戏基础配置
+  const meta = GAMES.find(g => g.id === id);
+  
+  if (!meta) {
+    appEl.innerHTML = `<div class="error">找不到该游戏，<a href="../index.html">返回首页</a></div>`;
+    return;
   }
-})();
+
+  appEl.innerHTML = `<div class="loading">正在加载深度鉴赏...</div>`;
+
+  try {
+    // 3. 动态导入游戏详细数据文件
+    const module = await import(meta.file);
+    const gameData = module.default;
+    
+    // 4. 获取当前收藏状态
+    let favorites = JSON.parse(localStorage.getItem('gv_favorites')) || [];
+    let isFav = favorites.includes(id);
+
+    // 5. 渲染页面结构（包含新的返回按钮、收藏按钮、以及大图渲染）
+    appEl.innerHTML = `
+      <!-- 返回按钮（新版带 SVG 图标） -->
+      <div class="back-nav">
+        <a href="../index.html" class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          返回游戏库
+        </a>
+      </div>
+
+      <!-- 顶部操作栏 -->
+      <div class="detail-top-bar">
+        <button id="detail-fav-btn" class="detail-fav-btn ${isFav ? 'is-fav' : ''}">
+          ${isFav ? '❤️ 已加入喜欢' : '🤍 加入喜欢'}
+        </button>
+      </div>
+
+      <!-- 注入 renderer 渲染的核心内容 -->
+      ${renderGame(gameData, meta)}
+    `;
+
+    // 6. 绑定详情页的收藏按钮事件
+    const favBtn = document.getElementById('detail-fav-btn');
+    favBtn.addEventListener('click', () => {
+      favorites = JSON.parse(localStorage.getItem('gv_favorites')) || [];
+      const index = favorites.indexOf(id);
+
+      if (index > -1) {
+        favorites.splice(index, 1);
+        isFav = false;
+        favBtn.classList.remove('is-fav');
+        favBtn.innerHTML = '🤍 加入喜欢';
+      } else {
+        favorites.push(id);
+        isFav = true;
+        favBtn.classList.add('is-fav');
+        favBtn.innerHTML = '❤️ 已加入喜欢';
+      }
+      localStorage.setItem('gv_favorites', JSON.stringify(favorites));
+    });
+
+    // 7. 更新页面标题并重置滚动条
+    document.title = `${gameData.title} · GameVault`;
+    window.scrollTo(0, 0);
+  } catch (err) {
+    console.error('加载失败:', err);
+    appEl.innerHTML = `<div class="error">数据加载失败，请检查控制台或文件路径。</div>`;
+  }
+}
+
+// ================= 滚动事件：控制返回顶部按钮 =================
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 400) {
+    backToTopBtn.classList.add('show');
+  } else {
+    backToTopBtn.classList.remove('show');
+  }
+});
+
+// ================= 返回顶部按钮点击事件 =================
+backToTopBtn.addEventListener('click', () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+
+// 启动
+init();

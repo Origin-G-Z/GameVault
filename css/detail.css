@@ -1,297 +1,282 @@
-/* ========== detail.css · 详情页专属 ========== */
-
-/* 顶部 Hero 区（大封面） */
-.hero-section {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  margin-top: 24px;
-  animation: fadeInDown 0.6s ease-out;
-  border: 1px solid var(--border);
+/* css/detail.css */
+.game { 
+  max-width: 1200px; 
+  margin: 0 auto; 
 }
 
-.hero-cover {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 80px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  position: relative;
-}
-
-.hero-info {
-  padding: 24px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.hero-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 12px;
-  line-height: 1.2;
-}
-
-.hero-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.hero-tags .tag {
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--accent);
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.hero-stats {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px dashed var(--border);
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: var(--text-dim);
-}
-
-.stat-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.stat-value.rating { color: #f59e0b; }
-
-/* 按钮组 */
-.hero-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: auto;
-}
-
-.btn {
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 1px solid transparent;
-}
-
-.btn-back {
-  background: #fff;
-  border-color: var(--border);
-  color: var(--text-dim);
-}
-.btn-back:hover {
-  background: #f8fafc;
-  color: var(--text);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-fav {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-.btn-fav:hover {
-  background: #4f46e5;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-}
-.btn-fav.active {
-  background: var(--accent-2);
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
-}
-.btn-fav.active:hover {
-  background: #db2777;
-  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
-}
-
-/* ===== 文章正文区 ===== */
-.article-section {
-  background: #fff;
-  border-radius: 20px;
-  padding: 32px 24px;
-  margin: 24px 0 40px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  animation: fadeInUp 0.6s ease-out 0.1s both;
-}
-
-.prose {
-  color: var(--text);
-  font-size: 16px;
-  line-height: 1.8;
-}
-
-.prose p {
-  margin-bottom: 20px;
-}
-
-.prose strong {
-  color: var(--accent);
-  font-weight: 700;
-  background: rgba(99, 102, 241, 0.05);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.prose h2 {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--text);
-  margin: 40px 0 16px;
-  padding-left: 12px;
-  border-left: 4px solid var(--accent);
-  display: flex;
-  align-items: center;
-}
-
-.prose h2:first-child {
-  margin-top: 0;
-}
-
-/* 加载与空状态 */
-.loading, .error-msg {
-  text-align: center;
-  padding: 100px 20px;
-  font-size: 18px;
-  color: var(--text-dim);
-}
-
-/* ===== 桌面端响应式 ===== */
-@media (min-width: 768px) {
-  .hero-section {
-    flex-direction: row;
-    margin-top: 40px;
-    min-height: 320px;
-  }
-  
-  .hero-cover {
-    width: 40%;
-    height: auto;
-    font-size: 120px;
-  }
-  
-  .hero-info {
-    width: 60%;
-    padding: 40px;
-  }
-  
-  .hero-title {
-    font-size: 36px;
-  }
-  
-  .article-section {
-    padding: 48px 60px;
-  }
-  
-  .prose {
-    font-size: 17px;
-  }
-  
-  .btn {
-    flex: 0 1 auto;
-    min-width: 160px;
-  }
-}
-/* ===== 高阶文章排版（表格、引用、列表） ===== */
-.prose h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  margin: 28px 0 12px;
-}
-
-.prose ul, .prose ol {
-  margin-bottom: 20px;
-  padding-left: 20px;
-}
-
-.prose li {
-  margin-bottom: 8px;
-}
-
-.prose li::marker {
-  color: var(--accent);
-  font-weight: bold;
-}
-
-/* 引用块：用于高亮核心观点 */
-.prose blockquote {
-  background: rgba(99, 102, 241, 0.05);
-  border-left: 4px solid var(--accent);
-  padding: 16px 20px;
-  margin: 24px 0;
-  color: var(--text-dim);
-  font-style: italic;
-  border-radius: 0 12px 12px 0;
-}
-.prose blockquote strong {
-  background: none;
-  padding: 0;
-  color: var(--accent);
-}
-
-/* 表格：用于基础信息速览 */
-.prose table {
+/* ===== 1. 顶部沉浸式大图 Hero 区 ===== */
+.game-hero {
   width: 100%;
-  border-collapse: collapse;
-  margin: 24px 0;
-  font-size: 15px;
-  border-radius: 12px;
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--radius);
+  position: relative;
+  margin-bottom: 40px;
+  box-shadow: var(--shadow-md);
   overflow: hidden;
-  box-shadow: 0 0 0 1px var(--border); /* 替代 border 保持圆角 */
-}
-.prose th, .prose td {
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.prose th {
-  background: #f8fafc;
-  color: var(--text);
-  font-weight: 700;
-  width: 30%; /* 左侧表头稍微窄一点 */
-}
-.prose tr:last-child th, .prose tr:last-child td {
-  border-bottom: none;
-}
-.prose tr:hover td {
-  background: #f8fafc;
 }
 
-/* 移动端表格适配（避免横向滚动） */
-@media (max-width: 576px) {
-  .prose table { font-size: 13px; }
-  .prose th, .prose td { padding: 8px 10px; }
+/* 大图遮罩层：保证文字在浅色图片上也能看清 */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 60px;
+}
+
+.game-en { 
+  font-size: 14px; 
+  letter-spacing: 0.2em; 
+  text-transform: uppercase; 
+  color: var(--accent); 
+  font-weight: 800; 
+}
+.game-title { 
+  margin: 8px 0 16px; 
+  font-size: clamp(32px, 5vw, 56px); 
+  line-height: 1.1; 
+  color: #0f172a; 
+  font-weight: 900; 
+}
+.game-tagline { 
+  margin: 0 0 24px; 
+  color: #334155; 
+  font-size: 18px; 
+  font-weight: 500;
+  max-width: 600px;
+}
+
+/* ===== 2. 核心排版布局 ===== */
+.layout { 
+  display: grid; 
+  grid-template-columns: minmax(0, 1fr) 240px; 
+  gap: 60px; 
+  align-items: start; 
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 正文阅读区限制宽度，保证阅读体验（文本位置适中） */
+.game-body { 
+  max-width: 780px; 
+  min-width: 0; 
+}
+
+/* ===== 3. 文章内部样式 ===== */
+h2 { margin: 56px 0 20px; font-size: 26px; color: var(--text); padding-bottom: 12px; border-bottom: 2px solid var(--line); }
+h3 { margin: 36px 0 14px; font-size: 20px; color: var(--accent-2); }
+p { margin: 0 0 20px; font-size: 16.5px; line-height: 1.8; color: #334155; }
+
+strong { 
+  color: #0f172a; 
+  font-weight: 800; 
+  background: rgba(99, 102, 241, 0.1); 
+  padding: 2px 6px; 
+  border-radius: 4px; 
+}
+
+blockquote { 
+  margin: 28px 0; 
+  padding: 20px 24px; 
+  border-left: 4px solid var(--accent); 
+  background: var(--panel-2); 
+  border-radius: 0 var(--radius) var(--radius) 0; 
+  color: #1e293b; 
+  font-size: 17px;
+  font-style: italic; 
+}
+
+ul, ol { margin: 0 0 24px; padding-left: 24px; }
+li { margin-bottom: 10px; font-size: 16.5px; color: #334155; }
+li::marker { color: var(--accent); font-weight: bold; }
+
+/* ===== 4. 图片插入样式 ===== */
+.article-image {
+  margin: 32px 0;
+  width: 100%;
+}
+.article-image img {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.image-caption {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+/* ===== 5. 表格与提示框 ===== */
+.table-wrap { margin: 28px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; background: #fff; }
+thead th { background: var(--panel-2); color: var(--text); text-align: left; padding: 14px 18px; font-weight: 700; }
+tbody td { padding: 14px 18px; border-top: 1px solid var(--line); vertical-align: top; }
+tbody td:first-child { color: var(--muted); white-space: nowrap; width: 1%; font-weight: 600; }
+tbody tr:nth-child(even) { background: #fafafa; }
+
+.callout { margin: 28px 0; padding: 20px 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel-2); }
+.callout.accent { border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.05); }
+.callout-title { font-weight: 800; color: var(--accent); margin-bottom: 8px; font-size: 16px; }
+
+/* ===== 6. 侧边目录 ===== */
+.toc { 
+  position: sticky; 
+  top: 100px; 
+  font-size: 14px; 
+  border-left: 2px solid var(--line); 
+  padding-left: 20px; 
+}
+.toc-title { color: var(--text); font-weight: 800; margin-bottom: 16px; }
+.toc-link { 
+  display: block; 
+  padding: 8px 0; 
+  color: var(--muted); 
+  text-decoration: none; 
+  transition: all 0.2s; 
+  line-height: 1.4;
+}
+.toc-link:hover { color: var(--accent); transform: translateX(4px); }
+
+/* ===== 7. 详情页顶部操作栏 ===== */
+.detail-top-bar {
+  max-width: 1100px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.detail-fav-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.detail-fav-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.detail-fav-btn.is-fav { background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3); color: var(--accent-2); }
+
+/* ===== 8. 返回顶部按钮 ===== */
+.back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  height: 50px;
+  width: 50px; 
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 50%; 
+  color: var(--text);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  
+  /* 整体宽度和圆角的平滑过渡 */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  overflow: hidden; 
+}
+
+/* 箭头图标：基础状态 */
+.back-to-top svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0; 
+  /* 添加旋转动画的过渡，带有轻微的弹性 */
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 文字部分：默认隐藏 */
+.back-text {
+  max-width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== 鼠标悬浮状态 ===== */
+.back-to-top:hover {
+  width: 135px; 
+  border-radius: 999px; /* 变圆角矩形 */
+  color: var(--accent);
+  border-color: var(--accent);
+  background: #fff;
+  transform: translateY(-4px); 
+}
+
+/* 核心交互：箭头顺时针旋转 360 度 */
+.back-to-top:hover svg {
+  transform: rotate(360deg);
+}
+
+/* 文字平滑展开 */
+.back-to-top:hover .back-text {
+  max-width: 80px;
+  opacity: 1;
+  margin-left: 10px; 
+}
+
+/* 显示状态（JS 控制） */
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 768px) {
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+  }
+  /* 移动端不展开 */
+  .back-to-top:hover {
+    width: 44px; 
+    border-radius: 50%;
+  }
+  .back-to-top:hover .back-text {
+    display: none;
+  }
+  /* 移动端不旋转 */
+  .back-to-top:hover svg {
+    transform: none;
+  }
+}
+
+/* ===== 9. 响应式适配 ===== */
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 1fr; gap: 0; }
+  .toc { display: none; }
+  .game-body { max-width: 100%; }
+  .game-hero { height: 300px; }
+  .hero-overlay { padding: 0 30px; }
+}
+
+@media (max-width: 768px) {
+  .game-hero { height: 250px; border-radius: 0; margin-bottom: 24px; }
+  .hero-overlay { background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%); padding: 20px; justify-content: flex-end; }
+  .game-title { font-size: 32px; margin-bottom: 8px; }
+  .game-tagline { font-size: 15px; margin-bottom: 12px; }
+  .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; }
 }

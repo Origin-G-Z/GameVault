@@ -1,108 +1,104 @@
-/* ========== common.css · 明亮鲜明主题 ========== */
-:root {
-  --bg: #f4f7f6;             /* 极浅的薄荷灰背景 */
-  --card: #ffffff;           /* 纯白卡片 */
-  --border: #e2e8f0;         /* 浅灰边框 */
-  --text: #1e293b;           /* 深灰文字 */
-  --text-dim: #64748b;       /* 辅助文字 */
-  
-  --accent: #6366f1;         /* 明亮靛蓝 (主色) */
-  --accent-2: #ec4899;       /* 明亮粉红 (副色) */
-  --danger: #ef4444;         /* 红色 (喜欢) */
-  --success: #10b981;        /* 绿色 (玩过) */
-  
-  --radius: 16px;            /* 更圆润的卡片 */
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  min-height: 100vh;
-  /* 整体背景加一点极微弱的渐变，增加质感 */
-  background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,0.03) 0, transparent 50%), 
-                    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.03) 0, transparent 50%);
-}
-
-a { color: inherit; text-decoration: none; }
-img { max-width: 100%; height: auto; display: block; }
-button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
-
-/* ===== 页头（毛玻璃效果） ===== */
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 20;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.85);
-  -webkit-backdrop-filter: blur(12px);
+  gap: 20px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.85); /* 改为半透明白 */
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-  transition: all 0.3s ease;
-}
-.logo {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: .5px;
-  color: var(--text);
-  transition: transform 0.3s ease;
-}
-.logo:hover { transform: scale(1.05); }
-.logo span { 
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02); /* 加一点极微弱的底阴影 */
 }
 
-.nav { display: flex; gap: 6px; }
-.nav a {
-  padding: 8px 14px;
-  border-radius: 8px;
+.brand {
+  font-weight: 800; /* 加粗一点 */
+  font-size: 18px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+#app { padding: 40px 24px 96px; min-height: 80vh; }
+
+.loading, .error {
+  text-align: center;
+  margin: 100px auto;
+  color: var(--muted);
+}
+
+.error a { color: var(--accent); }
+
+/* ===== 返回按钮样式 ===== */
+.back-nav {
+  /* 改为固定定位，悬浮在屏幕左上角 */
+  position: fixed;
+  top: 80px; /* 避开顶部的全局导航栏 */
+  z-index: 99; 
+  
+  /* 核心修改：动态计算左侧距离 */
+  /* 当屏幕很宽时，计算居中内容的左边缘并再往左偏 70px；当屏幕较窄时，最小保持 20px 的边距 */
+  left: max(20px, calc(50vw - 600px)); 
+  
+  margin: 0; 
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* 给按钮加上毛玻璃半透明效果，防止悬浮时被底下的深色图片影响视线 */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  
+  /* 半透明白色背景 + 模糊效果 */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  text-decoration: none !important; 
+  font-size: 14px;
+  font-weight: 600;
+  
+  /* 增加一点悬浮阴影 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* SVG 图标样式 */
+.back-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 悬浮状态 */
+.back-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.95); /* 悬浮时稍微变实一点 */
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+/* 悬浮时箭头向左滑出 */
+.back-btn:hover svg {
+  transform: translateX(-4px);
+}
+
+/* 点击时的按压感 */
+.back-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+.back-nav a {
+  color: var(--accent);
+  text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-dim);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.nav a:hover { 
-  color: var(--accent); 
-  background: rgba(99, 102, 241, 0.08); 
-  transform: translateY(-1px);
-}
-.nav a.active { 
-  color: #fff; 
-  background: var(--accent);
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-}
-
-/* ===== 容器 ===== */
-.container {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-/* ===== 页脚 ===== */
-.site-footer {
-  text-align: center;
-  color: var(--text-dim);
-  font-size: 13px;
-  padding: 32px 16px;
-  margin-top: 60px;
-  border-top: 1px solid var(--border);
-}
-
-@media (min-width: 768px) {
-  .site-header { padding: 16px 40px; }
-  .logo { font-size: 22px; }
-}
+.back-nav a:hover { text-decoration: underline; }

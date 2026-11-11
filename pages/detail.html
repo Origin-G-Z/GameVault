@@ -3,31 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>游戏详情 - GameVault</title>
+  <title>游戏鉴赏详情</title>
+  <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/detail.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="logo" href="../index.html">Game<span>Vault</span></a>
-    <nav class="nav">
-      <a href="../index.html">首页</a>
-      <a href="manage.html">管理</a>
-      <a href="about.html">关于</a>
-    </nav>
+    <a class="brand" href="../index.html">🎮 GameVault</a>
   </header>
+  
+  <main id="app"></main>
 
-  <main class="container" id="detailMain">
-    <!-- 动态渲染的内容会放在这里 -->
-    <div class="loading">加载中...</div>
-  </main>
+    <!-- 返回顶部按钮 -->
+  <button id="back-to-top" class="back-to-top" title="返回顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+    <span class="back-text">返回顶部</span>
+  </button>
 
-  <footer class="site-footer">
-    © 2026 GameVault · 课程演示项目
-  </footer>
-
-  <script src="../js/data.js"></script>
-  <script src="../js/common.js"></script>
-  <script src="../js/detail.js"></script>
+  <script type="module" src="../js/detail.js"></script>
 </body>
 </html>

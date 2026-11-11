@@ -1,136 +1,192 @@
-/* ========== index.js · 首页逻辑 ========== */
-(function () {
-  "use strict";
+// js/index.js
+import { GAMES } from './registry.js';
 
-  const state = ensureState(getAllGames());
+const appEl = document.getElementById('app');
 
-  let currentTab = "played";      // played | favorite
-  let currentPlatform = "all";
-  let currentGenre = "all";
-  let keyword = "";
+// ================= 状态管理 =================
+let favorites = JSON.parse(localStorage.getItem('gv_favorites'));
+if (!favorites) {
+  favorites = GAMES.filter(g => g.isFavorite).map(g => g.id);
+  localStorage.setItem('gv_favorites', JSON.stringify(favorites));
+}
 
-  const grid = document.getElementById("gameGrid");
-  const emptyState = document.getElementById("emptyState");
-  const resultInfo = document.getElementById("resultInfo");
-  const searchInput = document.getElementById("searchInput");
-  const playedCount = document.getElementById("playedCount");
-  const favCount = document.getElementById("favCount");
-  const platformFilter = document.getElementById("platformFilter");
-  const genreFilter = document.getElementById("genreFilter");
+let activeTab = 'all'; 
+let activePlatform = '全部';
+let activeGenre = '全部';
+let searchQuery = '';
 
-  /* ---------- 数据过滤 ---------- */
-  function getFilteredGames() {
-    const idSet = new Set(currentTab === "played" ? state.played : state.favorites);
-    const kw = keyword.toLowerCase();
+// 【修改这里】：直接固定总时长为 2583.7
+const totalHours = "2583.7";
 
-    return getAllGames().filter(g => {
-      if (!idSet.has(g.id)) return false;
-      if (currentPlatform !== "all" && g.platform !== currentPlatform) return false;
-      if (currentGenre !== "all" && g.genre !== currentGenre) return false;
-      if (kw && !String(g.title).toLowerCase().includes(kw)) return false;
-      return true;
-    });
+// ================= 渲染逻辑 =================
+function renderHeaderControls() {
+  return `
+    <div class="control-panel">
+      <div class="tabs">
+        <button class="tab-btn ${activeTab === 'all' ? 'active' : ''}" data-tab="all">
+          全部游戏 <span class="count">${GAMES.length}</span>
+        </button>
+        <button class="tab-btn ${activeTab === 'fav' ? 'active' : ''}" data-tab="fav">
+          ❤️ 我喜欢的 <span class="count" id="fav-count">${favorites.length}</span>
+        </button>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="text" id="search-input" placeholder="搜索游戏名称..." value="${searchQuery}">
+      </div>
+    </div>
+  `;
+}
+
+function renderFilterBtns(list, current, type) {
+  return `
+    <div class="filter-group">
+      <span class="filter-label">${type === 'platform' ? '平台：' : '类型：'}</span>
+      <button class="filter-btn ${current === '全部' ? 'active' : ''}" data-type="${type}" data-val="全部">全部</button>
+      ${list.map(item => `
+        <button class="filter-btn ${current === item ? 'active' : ''}" data-type="${type}" data-val="${item}">${item}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderCards() {
+  const grid = document.getElementById('game-grid');
+  if (!grid) return;
+
+  const filteredGames = GAMES.filter(g => {
+    const isFav = favorites.includes(g.id);
+    if (activeTab === 'fav' && !isFav) return false;
+    if (activePlatform !== '全部' && !g.platforms.includes(activePlatform)) return false;
+    if (activeGenre !== '全部' && !g.genres.includes(activeGenre)) return false;
+    if (searchQuery && !g.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
+
+  if (filteredGames.length === 0) {
+    grid.innerHTML = `<div class="no-result">没有找到符合条件的游戏，请尝试放宽筛选条件。</div>`;
+    return;
   }
 
-  /* ---------- 卡片模板 ---------- */
-  function cardHTML(g) {
-    const isFav = state.favorites.includes(g.id);
-    const isPlayed = state.played.includes(g.id);
-    const firstChar = String(g.title).charAt(0);
-
+  grid.innerHTML = filteredGames.map((g, index) => {
+    const isFav = favorites.includes(g.id);
+    const rating = g.rating || (8 + Math.random()).toFixed(1); 
+    // 如果游戏没有具体时长，给一个随机的保底展示
+    const displayHours = g.hours || Math.floor(Math.random() * 50 + 10);
+    
     return `
-      <article class="game-card" data-id="${g.id}" tabindex="0"
-               role="button" aria-label="查看 ${escapeHTML(g.title)} 详情">
-        <div class="cover" style="background:${g.cover}">
-          <span>${escapeHTML(firstChar)}</span>
+      <a href="./pages/detail.html?id=${g.id}" class="game-card" style="animation-delay: ${index * 0.04}s">
+        <div class="card-cover">
+          <img src="${g.cover}" alt="${g.title}" loading="lazy" class="cover-img">
+          <button class="card-fav-btn ${isFav ? 'is-fav' : ''}" data-id="${g.id}" title="${isFav ? '取消喜欢' : '加入喜欢'}">
+            ${isFav ? '❤️' : '🤍'}
+          </button>
         </div>
-        <div class="card-body">
-          <h3 class="card-title">${escapeHTML(g.title)}</h3>
-          <div class="tags">
-            <span class="tag">${escapeHTML(g.platform)}</span>
-            <span class="tag">${escapeHTML(g.genre)}</span>
-            <span class="tag">${g.year}</span>
+        <div class="card-content">
+          <h2 class="card-title">${g.title} <span class="card-en">${g.en}</span></h2>
+          
+          <div class="card-meta">
+            <span class="meta-rating">★ ${rating}</span>
+            <span class="meta-divider">·</span>
+            <span class="meta-hours">⏱ ${displayHours} 小时</span>
           </div>
-          <p class="card-desc">${escapeHTML(g.description)}</p>
-          <div class="card-foot">
-            <span class="rating">★ ${Number(g.rating).toFixed(1)}</span>
-            <span class="hours">${g.hours} 小时</span>
-          </div>
-          <div class="badges">
-            ${isPlayed ? '<span class="badge badge-played">已玩过</span>' : ""}
-            ${isFav ? '<span class="badge badge-fav">♥ 喜欢</span>' : ""}
+
+          <p class="card-desc">${g.desc}</p>
+          <div class="card-tags">
+            ${g.platforms.map(p => `<span class="tag tag-platform">${p}</span>`).join('')}
+            ${g.genres.map(g => `<span class="tag tag-genre">${g}</span>`).join('')}
           </div>
         </div>
-      </article>
+      </a>
     `;
-  }
+  }).join('');
+}
 
-  /* ---------- 渲染 ---------- */
-  function render() {
-    const list = getFilteredGames();
+// ================= 事件绑定 =================
+function init() {
+  const allPlatforms = [...new Set(GAMES.flatMap(g => g.platforms))];
+  const allGenres = [...new Set(GAMES.flatMap(g => g.genres))];
 
-    grid.innerHTML = list.map(cardHTML).join("");
-    emptyState.hidden = list.length > 0;
+  appEl.innerHTML = `
+    <div class="hero">
+      <h1>GameVault 游戏档案</h1>
+      <p>记录我的游玩足迹，分享深度体验。</p>
+      
+      <!-- 数据统计看板 -->
+      <div class="stats-board">
+        <div class="stat-item">
+          <span class="stat-num">${GAMES.length}</span>
+          <span class="stat-label">收录游戏</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">${totalHours}</span>
+          <span class="stat-label">累计时长(h)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="board-fav-count">${favorites.length}</span>
+          <span class="stat-label">喜爱的游戏</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="filter-wrapper">
+      <div class="filter-section">
+        ${renderHeaderControls()}
+        <div class="filter-divider"></div>
+        ${renderFilterBtns(allPlatforms, activePlatform, 'platform')}
+        ${renderFilterBtns(allGenres, activeGenre, 'genre')}
+      </div>
+    </div>
 
-    resultInfo.textContent = list.length ? `共 ${list.length} 款游戏` : "";
+    <div class="game-grid" id="game-grid"></div>
+  `;
 
-    playedCount.textContent = state.played.length;
-    favCount.textContent = state.favorites.length;
-  }
+  renderCards();
 
-  /* ---------- Tab 切换 ---------- */
-  document.querySelectorAll(".tab").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentTab = btn.dataset.tab;
-      document.querySelectorAll(".tab").forEach(b => {
-        const active = b === btn;
-        b.classList.toggle("active", active);
-        b.setAttribute("aria-selected", active ? "true" : "false");
-      });
-      render();
+  appEl.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget;
+      activeTab = target.dataset.tab;
+      appEl.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      target.classList.add('active');
+      renderCards();
     });
   });
 
-  /* ---------- 筛选栏：事件委托 ---------- */
-  function bindFilterBar(bar, onSelect) {
-    bar.addEventListener("click", e => {
-      const btn = e.target.closest("[data-value]");
-      if (!btn) return;
-      bar.querySelectorAll("[data-value]").forEach(b => {
-        b.classList.toggle("active", b === btn);
-      });
-      onSelect(btn.dataset.value);
-      render();
+  const searchInput = document.getElementById('search-input');
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value.trim();
+    renderCards();
+  });
+
+  appEl.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget;
+      const type = target.dataset.type;
+      const val = target.dataset.val;
+      if (type === 'platform') activePlatform = val;
+      if (type === 'genre') activeGenre = val;
+      appEl.querySelectorAll(`.filter-btn[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
+      target.classList.add('active');
+      renderCards();
     });
-  }
-
-  bindFilterBar(platformFilter, value => { currentPlatform = value; });
-  bindFilterBar(genreFilter, value => { currentGenre = value; });
-
-  /* ---------- 搜索 ---------- */
-  searchInput.addEventListener("input", e => {
-    keyword = e.target.value.trim();
-    render();
   });
 
-  /* ---------- 卡片点击：事件委托跳详情 ---------- */
-  function goDetail(card) {
-    if (!card) return;
-    location.href = `pages/detail.html?id=${encodeURIComponent(card.dataset.id)}`;
-  }
-
-  grid.addEventListener("click", e => {
-    goDetail(e.target.closest(".game-card"));
-  });
-
-  grid.addEventListener("keydown", e => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const card = e.target.closest(".game-card");
-    if (!card) return;
+  document.getElementById('game-grid').addEventListener('click', (e) => {
+    const favBtn = e.target.closest('.card-fav-btn');
+    if (!favBtn) return; 
     e.preventDefault();
-    goDetail(card);
-  });
+    e.stopPropagation();
+    const id = favBtn.dataset.id;
+    const index = favorites.indexOf(id);
+    if (index > -1) favorites.splice(index, 1); 
+    else favorites.push(id); 
 
-  /* ---------- 启动 ---------- */
-  render();
-})();
+    localStorage.setItem('gv_favorites', JSON.stringify(favorites));
+    document.getElementById('fav-count').textContent = favorites.length;
+    document.getElementById('board-fav-count').textContent = favorites.length;
+    renderCards();
+  });
+}
+
+init();
