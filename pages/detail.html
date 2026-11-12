@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,21 +9,31 @@
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/detail.css">
 </head>
+
 <body>
   <header class="site-header">
     <a class="brand" href="../index.html">🎮 GameVault</a>
   </header>
-  
+
   <main id="app"></main>
 
-    <!-- 返回顶部按钮 -->
+  <!-- 返回顶部按钮 -->
   <button id="back-to-top" class="back-to-top" title="返回顶部">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 19V5M5 12l7-7 7 7"/>
+      <path d="M12 19V5M5 12l7-7 7 7" />
     </svg>
     <span class="back-text">返回顶部</span>
   </button>
 
-  <script type="module" src="../js/detail.js"></script>
+  <script src="../js/registry.js"></script>
+  <script src="../js/renderer.js"></script>
+
+  <!-- 同样把所有的游戏数据引入 -->
+  <script src="../js/game/cs2.js"></script>
+  <script src="../js/game/pragmata.js"></script>
+  <!-- ... -->
+
+  <script src="../js/detail.js"></script>
 </body>
+
 </html>

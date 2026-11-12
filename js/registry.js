@@ -1,5 +1,5 @@
 // js/registry.js
-export const GAMES = [
+const GAMES = [
   {
     id: 'cs2',
     file: './game/cs2.js',
@@ -160,7 +160,7 @@ export const GAMES = [
     title: '都市：天际线2',
     en: 'Cities: Skylines II',
     desc: '硬核城市建造模拟游戏，规划交通、水电与区域，打造超级大都市。',
-    cover: './image/cities-skylines2.jpg',
+    cover: './image/city-sky-line2.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['模拟', '策略', '城建'],
     isFavorite: true
@@ -319,3 +319,8 @@ export const GAMES = [
     isFavorite: true
   }
 ];
+// 补充一个全局存储和注册函数
+window.GAME_DB = {};
+window.registerGame = function (gameData) {
+  window.GAME_DB[gameData.id] = gameData;
+};

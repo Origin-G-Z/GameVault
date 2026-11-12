@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'euro-truck',
   title: '欧洲卡车模拟2',
   en: 'Euro Truck Simulator 2',
@@ -133,4 +133,4 @@ export default {
       text: '《欧洲卡车模拟2》更像是一张**长期有效的欧洲公路通行证**，而不是一部需要被“通关”的作品。它用十余年时间证明了一件事：当一款游戏把“过程”本身做得足够诚实，玩家就愿意一次又一次地回到驾驶座上，不是为了抵达，而是为了那段路。',
     },
   ],
-};
+});

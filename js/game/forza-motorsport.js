@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'forza-motorsport',
   title: '极限竞速 (极限竞速8)',
   en: 'Forza Motorsport',
@@ -142,4 +142,4 @@ export default {
       text: '《极限竞速8》是一台潜力巨大的赛道机器，但它的引擎在首发时并没有调校到最佳状态。对于愿意等待它、并投入耐心去理解它的玩家，它依然能提供这个品类里最扎实、最令人满足的模拟驾驶体验之一。但对于其他人来说，它可能更像一个需要谨慎观望的“长期项目”。',
     },
   ],
-};
+});

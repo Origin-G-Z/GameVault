@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'battlefield5',
   title: '战地5',
   en: 'Battlefield V',
@@ -139,4 +139,4 @@ export default {
       text: '《战地5》从来不是一款“不好玩”的游戏。它的危机在于，**它在最需要稳定交付的那段时间里，连续做出了让核心玩家失去信心的选择**。它的战场依然在那里，寒霜引擎的光影依然在诺曼底的海岸上流动——只是那些承诺过的远方，永远不会再抵达了。',
     },
   ],
-};
+});

@@ -3,7 +3,7 @@
 const slug = (s) =>
   s.replace(/[^\w\u4e00-\u9fa5]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
 
-// 极简行内语法：**粗** / *斜*
+// 极简行内语法：**粗** / *斜*z
 const inline = (s = '') =>
   String(s)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -59,7 +59,7 @@ function renderBlock(b, toc) {
 }
 
 // 修改：增加了 meta 参数，用于接收 registry 里的封面图等数据
-export function renderGame(game, meta) {
+function renderGame(game, meta) {
   const toc = [];
   const body = game.blocks.map((b) => renderBlock(b, toc)).join('\n');
 

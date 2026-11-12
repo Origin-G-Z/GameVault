@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'phasmophobia',
   title: '恐鬼症',
   en: 'Phasmophobia',
@@ -129,4 +129,4 @@ export default {
       text: '《恐鬼症》是一间**永远没有开灯的屋子**。它不会告诉你鬼在哪里，也不会保证你的证据一定准确。它只给你一支温度计、一台EMF，和一个愿意和你一起走进去的人。如果你能在黑暗中保持冷静，并信任身后那个人的声音，这间屋子会给你这个品类里最诚实、也最持久的心跳加速。',
     },
   ],
-};
+});

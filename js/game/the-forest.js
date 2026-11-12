@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'the-forest',
   title: '森林',
   en: 'The Forest',
@@ -114,4 +114,4 @@ export default {
       text: '《森林》是一把**没有说明书的黑暗中的钥匙**。它不会告诉你锁在哪里，也不会保证锁后面是你想看到的东西。但如果你愿意在黑暗里摸索足够久，它打开的那扇门后面，藏着一个远比“荒岛求生”更沉重、也更完整的故事。',
     },
   ],
-};
+});

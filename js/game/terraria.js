@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'terraria',
   title: '泰拉瑞亚',
   en: 'Terraria',
@@ -139,4 +139,4 @@ export default {
       text: '《泰拉瑞亚》是一座**没有地图的矿山**。它不告诉你金子在哪，也不保证你每一次挖掘都有回报。但如果你愿意拿起镐子，向下挖得足够久，它会给你一座远超你最初想象的地下世界。',
     },
   ],
-};
+});

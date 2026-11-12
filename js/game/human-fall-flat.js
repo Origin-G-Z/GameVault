@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'human-fall-flat',
   title: '人类一败涂地',
   en: 'Human: Fall Flat',
@@ -123,4 +123,4 @@ export default {
       text: '《人类一败涂地》是一张**只卖给“一群人”的游乐园门票**。它不承诺你会优雅地解开谜题，它只承诺，当你们一起从平台上摔下去的时候，没有人会真的生气。',
     },
   ],
-};
+});

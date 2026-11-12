@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,27 @@
   <link rel="stylesheet" href="./css/common.css">
   <link rel="stylesheet" href="./css/index.css">
 </head>
+
 <body>
   <header class="site-header">
     <a class="brand" href="./index.html">🎮 GameVault</a>
   </header>
   <main id="app"></main>
-  <script type="module" src="./js/index.js"></script>
+  <script src="./js/registry.js"></script>
+
+  <!-- 2. 渲染引擎 -->
+  <script src="./js/renderer.js"></script>
+
+  <!-- 3. 游戏数据（把所有 game 文件夹下的文件全部引进来） -->
+  <script src="./js/game/cs2.js"></script>
+  <script src="./js/game/pragmata.js"></script>
+  <script src="./js/game/squad.js"></script>
+  <script src="./js/game/cod.js"></script>
+  <!-- ... 把你所有的游戏文件都写在这里 ... -->
+  <script src="./js/game/tlou2.js"></script>
+
+  <!-- 4. 首页逻辑 -->
+  <script src="./js/index.js"></script>
 </body>
+
 </html>

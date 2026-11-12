@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'apex',
   title: 'Apex 英雄',
   en: 'Apex Legends',
@@ -134,4 +134,4 @@ export default {
       text: 'Apex的危机不是“不好玩”。它的危机是，**一款曾经用设计上的聪明才智定义了一个品类协作标准的游戏，如今需要证明的东西，已经不再是怎么“做得更巧”，而是怎么让人愿意继续留下来**。那个答案，比任何一次英雄调整或地图更新都更难写。',
     },
   ],
-};
+});

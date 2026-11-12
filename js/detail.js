@@ -3,16 +3,16 @@ import { GAMES } from './registry.js';
 import { renderGame } from './renderer.js';
 
 const appEl = document.getElementById('app');
-const backToTopBtn = document.getElementById('back-to-top'); 
+const backToTopBtn = document.getElementById('back-to-top');
 
 async function init() {
   // 1. 获取 URL 参数 ?id=xxx
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
-  
+
   // 2. 查找游戏基础配置
   const meta = GAMES.find(g => g.id === id);
-  
+
   if (!meta) {
     appEl.innerHTML = `<div class="error">找不到该游戏，<a href="../index.html">返回首页</a></div>`;
     return;
@@ -22,9 +22,12 @@ async function init() {
 
   try {
     // 3. 动态导入游戏详细数据文件
-    const module = await import(meta.file);
-    const gameData = module.default;
-    
+    const gameData = window.GAME_DB[id];
+    if (!gameData) {
+      appEl.innerHTML = `<div class="error">数据加载失败</div>`;
+      return;
+    }
+
     // 4. 获取当前收藏状态
     let favorites = JSON.parse(localStorage.getItem('gv_favorites')) || [];
     let isFav = favorites.includes(id);

@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'civilization6',
   title: '文明6',
   en: 'Civilization VI',
@@ -161,4 +161,4 @@ export default {
       text: '《文明6》是一台**为“开局”而生的机器**。它最辉煌的时刻，永远是你落下的第一座城市、放下的第一个区域、触发的第一次尤里卡。它不承诺每一局都能以令人满意的方式收束，但它承诺的是：**当你关掉它的那一刻，你已经在想下一个文明该怎么玩了。**',
     },
   ],
-};
+});

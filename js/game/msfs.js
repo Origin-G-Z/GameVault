@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'msfs',
   title: '微软模拟飞行',
   en: 'Microsoft Flight Simulator',
@@ -120,4 +120,4 @@ export default {
       text: '《微软模拟飞行2020》更像是一张**通往真实地球的长期通行证**，而不是一盒即开即玩的游戏。它把最惊人的部分——那颗星球——免费铺开在你面前，然后把“接下来做什么”的决定权，连同它的重量和自由，一起交到了你手里。',
     },
   ],
-};
+});

@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'pragmata',
   title: '识质存在',
   en: 'PRAGMATA',
@@ -178,4 +178,4 @@ export default {
       text: '它不完美，但它所尝试的事情——**用一套全新的操作语言去讲述一个关于连接的故事**——在 2026 年的游戏版图上，几乎没有替代品。',
     },
   ],
-};
+});

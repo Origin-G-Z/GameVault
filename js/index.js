@@ -1,5 +1,4 @@
 // js/index.js
-import { GAMES } from './registry.js';
 
 const appEl = document.getElementById('app');
 
@@ -10,7 +9,7 @@ if (!favorites) {
   localStorage.setItem('gv_favorites', JSON.stringify(favorites));
 }
 
-let activeTab = 'all'; 
+let activeTab = 'all';
 let activePlatform = '全部';
 let activeGenre = '全部';
 let searchQuery = '';
@@ -70,10 +69,10 @@ function renderCards() {
 
   grid.innerHTML = filteredGames.map((g, index) => {
     const isFav = favorites.includes(g.id);
-    const rating = g.rating || (8 + Math.random()).toFixed(1); 
+    const rating = g.rating || (8 + Math.random()).toFixed(1);
     // 如果游戏没有具体时长，给一个随机的保底展示
     const displayHours = g.hours || Math.floor(Math.random() * 50 + 10);
-    
+
     return `
       <a href="./pages/detail.html?id=${g.id}" class="game-card" style="animation-delay: ${index * 0.04}s">
         <div class="card-cover">
@@ -174,13 +173,13 @@ function init() {
 
   document.getElementById('game-grid').addEventListener('click', (e) => {
     const favBtn = e.target.closest('.card-fav-btn');
-    if (!favBtn) return; 
+    if (!favBtn) return;
     e.preventDefault();
     e.stopPropagation();
     const id = favBtn.dataset.id;
     const index = favorites.indexOf(id);
-    if (index > -1) favorites.splice(index, 1); 
-    else favorites.push(id); 
+    if (index > -1) favorites.splice(index, 1);
+    else favorites.push(id);
 
     localStorage.setItem('gv_favorites', JSON.stringify(favorites));
     document.getElementById('fav-count').textContent = favorites.length;

@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'cities-skylines',
   title: '城市天际线',
   en: 'Cities: Skylines',
@@ -103,4 +103,4 @@ export default {
       text: '《城市天际线》不是一款“完美”的游戏，但它是一款**诚实的沙盒**。它把城市建造中最枯燥也最核心的部分——路网、分区、资源流动——原样交给你，然后让社区决定这座沙盒的边界能延伸多远。十年过去，那条边界仍然在向外生长。',
     },
   ],
-};
+});

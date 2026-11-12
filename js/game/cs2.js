@@ -2,7 +2,7 @@
 // 支持的 block 类型：h2 / h3 / p / quote / ul / ol / table / callout / hr
 // 文本里可用 **加粗** 与 *斜体*
 
-export default {
+window.registergame({
   id: 'cs2',
   title: '反恐精英2',
   en: 'Counter-Strike 2',
@@ -185,4 +185,4 @@ export default {
       text: 'CS2 不完美，但它所代表的那种**纯粹、硬核、以公平为最高价值的对抗美学**，至今仍然几乎没有真正的替代品。它的危机不在于“不好玩”，而在于**维持这种“好玩”所需要的信任成本，正在变得越来越高**。',
     },
   ],
-};
+});

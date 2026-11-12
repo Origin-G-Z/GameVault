@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'stardew-valley',
   title: '星露谷物语',
   en: 'Stardew Valley',
@@ -112,4 +112,4 @@ export default {
       text: '《星露谷物语》是一块**种在你心里的地**。你可以在上面什么都不种，任由它长草；也可以把它经营成一座精密的庄园。它不评价你的选择，它只是在你每一次打开它的时候，把新的一天原封不动地交给你。',
     },
   ],
-};
+});

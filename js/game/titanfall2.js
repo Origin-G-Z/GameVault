@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'titanfall2',
   title: '泰坦陨落2',
   en: 'Titanfall 2',
@@ -145,4 +145,4 @@ export default {
       text: '它没有成为2016年的销量冠军，但它成为了之后十年里，**每当有人问“FPS单人战役应该怎么做”时，被反复提起的那个答案**。一台泰坦从天而降，一个铁驭在墙上奔跑，一句“协议三”——这些东西的重量，比任何发售窗口都更持久。',
     },
   ],
-};
+});

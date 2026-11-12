@@ -1,4 +1,4 @@
-export default {
+window.registergame({
   id: 'peak',
   title: 'PEAK',
   en: 'PEAK',
@@ -115,4 +115,4 @@ export default {
       text: '《PEAK》是一张**只卖给“一群人”的门票**。它不保证你会登顶，甚至不保证你会觉得好玩——但它几乎可以保证，如果你带着对的人走进这座山，你们之间会发生一些值得在语音里反复回放的事。',
     },
   ],
-};
+});
