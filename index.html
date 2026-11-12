@@ -14,7 +14,30 @@
   <header class="site-header">
     <a class="brand" href="./index.html">🎮 GameVault</a>
   </header>
-  <main id="app"></main>
+  <main>
+    <!-- 全屏首屏视觉区 -->
+    <section id="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">GameVault</h1>
+        <p class="hero-subtitle">记录我的游玩足迹，分享深度体验。</p>
+        <button id="scroll-down-btn" class="scroll-hint">下滑探索</button>
+      </div>
+    </section>
+
+    <!-- 真实内容区（你之前的 #app 内容将渲染到这里） -->
+    <section id="content-section">
+      <div id="app"></div>
+    </section>
+
+    <!-- 右下角按钮 -->
+    <button id="explore-btn" class="explore-fab" aria-label="返回游戏列表">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <!-- 向上箭头 -->
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </svg>
+    </button>
+  </main>
   <script src="./js/registry.js"></script>
 
   <!-- 2. 渲染引擎 -->

@@ -1,4 +1,5 @@
 // js/index.js
+// 注意：因为你之前改成了全局变量，所以这里不需要 import 了
 
 const appEl = document.getElementById('app');
 
@@ -14,7 +15,7 @@ let activePlatform = '全部';
 let activeGenre = '全部';
 let searchQuery = '';
 
-// 【修改这里】：直接固定总时长为 2583.7
+// 计算总时长（固定为 2583.7）
 const totalHours = "2583.7";
 
 // ================= 渲染逻辑 =================
@@ -70,13 +71,18 @@ function renderCards() {
   grid.innerHTML = filteredGames.map((g, index) => {
     const isFav = favorites.includes(g.id);
     const rating = g.rating || (8 + Math.random()).toFixed(1);
-    // 如果游戏没有具体时长，给一个随机的保底展示
     const displayHours = g.hours || Math.floor(Math.random() * 50 + 10);
+
+    // 处理路径问题
+    let displayCover = g.cover;
+    if (displayCover.startsWith('./')) {
+      // 如果是在首页，不需要加 ../
+    }
 
     return `
       <a href="./pages/detail.html?id=${g.id}" class="game-card" style="animation-delay: ${index * 0.04}s">
         <div class="card-cover">
-          <img src="${g.cover}" alt="${g.title}" loading="lazy" class="cover-img">
+          <img src="${displayCover}" alt="${g.title}" loading="lazy" class="cover-img">
           <button class="card-fav-btn ${isFav ? 'is-fav' : ''}" data-id="${g.id}" title="${isFav ? '取消喜欢' : '加入喜欢'}">
             ${isFav ? '❤️' : '🤍'}
           </button>
@@ -101,13 +107,13 @@ function renderCards() {
   }).join('');
 }
 
-// ================= 事件绑定 =================
-function init() {
+// ================= 页面初始化与事件绑定 =================
+function initLibrary() {
   const allPlatforms = [...new Set(GAMES.flatMap(g => g.platforms))];
   const allGenres = [...new Set(GAMES.flatMap(g => g.genres))];
 
   appEl.innerHTML = `
-    <div class="hero">
+    <div class="hero" style="padding-top: 20px;">
       <h1>GameVault 游戏档案</h1>
       <p>记录我的游玩足迹，分享深度体验。</p>
       
@@ -123,7 +129,7 @@ function init() {
         </div>
         <div class="stat-item">
           <span class="stat-num" id="board-fav-count">${favorites.length}</span>
-          <span class="stat-label">喜爱的游戏</span>
+          <span class="stat-label">心头好</span>
         </div>
       </div>
     </div>
@@ -142,6 +148,7 @@ function init() {
 
   renderCards();
 
+  // 绑定 Tab
   appEl.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const target = e.currentTarget;
@@ -152,12 +159,14 @@ function init() {
     });
   });
 
+  // 绑定搜索
   const searchInput = document.getElementById('search-input');
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.trim();
     renderCards();
   });
 
+  // 绑定筛选
   appEl.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const target = e.currentTarget;
@@ -171,6 +180,7 @@ function init() {
     });
   });
 
+  // 绑定爱心收藏
   document.getElementById('game-grid').addEventListener('click', (e) => {
     const favBtn = e.target.closest('.card-fav-btn');
     if (!favBtn) return;
@@ -188,4 +198,86 @@ function init() {
   });
 }
 
-init();
+
+// ================= 首屏滚动交互逻辑 =================
+function initScrollEffects() {
+  const heroSection = document.getElementById('hero-section');
+  const heroContent = document.querySelector('.hero-content');
+  const scrollHint = document.querySelector('.scroll-hint');
+  const exploreBtn = document.getElementById('explore-btn');
+  const gameGrid = document.getElementById('game-grid');
+  const filterWrapper = document.querySelector('.filter-wrapper'); // 获取筛选框
+
+  // 动态计算滚动的偏移量，精准定位到第一款游戏
+  function getTargetScrollTop() {
+    if (!gameGrid) return 0;
+    const filterHeight = filterWrapper ? filterWrapper.offsetHeight : 0;
+    const yOffset = -(filterHeight + 65 + 20);
+    return gameGrid.getBoundingClientRect().top + window.pageYOffset + yOffset;
+  }
+
+  // 点击平滑滚动
+  function scrollToGames() {
+    window.scrollTo({ top: getTargetScrollTop(), behavior: 'smooth' });
+  }
+
+  if (scrollHint) scrollHint.addEventListener('click', scrollToGames);
+  if (exploreBtn) exploreBtn.addEventListener('click', scrollToGames);
+
+  // 监听滚动，控制动画和按钮显隐
+  let ticking = false;
+  let lastScrollY = window.scrollY; // 记录上一次的滚动位置
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        const heroHeight = heroSection.offsetHeight;
+        const targetTop = getTargetScrollTop();
+
+        // 1. 控制右下角悬浮按钮显隐
+        if (scrollY > targetTop + 100) {
+          exploreBtn.classList.add('visible');
+        } else {
+          exploreBtn.classList.remove('visible');
+        }
+
+        // 2. 核心修改：控制筛选框的上下隐藏
+        if (filterWrapper && gameGrid) {
+          // 判断滚动方向
+          const isScrollingDown = scrollY > lastScrollY;
+
+          // 获取游戏网格距离视口顶部的距离
+          const gridTopDistance = gameGrid.getBoundingClientRect().top;
+
+          // 逻辑：如果是向下滑，且第一排卡片已经滑到了距离屏幕顶部 120px 以内（快要钻到导航栏下面了）
+          // 这时才让筛选框隐藏。否则一直保持显示。
+          if (isScrollingDown && gridTopDistance < 120) {
+            filterWrapper.classList.add('hide');
+          } else {
+            filterWrapper.classList.remove('hide');
+          }
+        }
+
+        // 3. 首屏文字的视差淡出效果
+        if (scrollY <= heroHeight) {
+          if (heroContent) {
+            heroContent.style.opacity = 1 - (scrollY / (heroHeight * 0.6));
+            heroContent.style.transform = `translateY(${scrollY * 0.4}px)`;
+          }
+        }
+
+        // 更新上一次的滚动位置
+        lastScrollY = scrollY;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+}
+
+// 启动
+document.addEventListener('DOMContentLoaded', () => {
+  initLibrary(); // 初始化游戏列表
+  initScrollEffects(); // 初始化首屏滚动
+});

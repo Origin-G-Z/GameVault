@@ -4,6 +4,7 @@
 #app {
   position: relative;
 }
+
 #app::before {
   content: '';
   position: absolute;
@@ -19,25 +20,25 @@
   pointer-events: none;
 }
 
-.hero { 
-  text-align: center; 
-  padding: 70px 0 50px; 
+.hero {
+  text-align: center;
+  padding: 70px 0 50px;
 }
 
-.hero h1 { 
-  font-size: 44px; 
-  margin-bottom: 12px; 
-  color: var(--text); 
-  font-weight: 900; 
-  letter-spacing: -1px; 
+.hero h1 {
+  font-size: 44px;
+  margin-bottom: 12px;
+  color: var(--text);
+  font-weight: 900;
+  letter-spacing: -1px;
   background: linear-gradient(135deg, #1e293b, #6366f1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.hero p { 
-  color: var(--muted); 
-  font-size: 18px; 
+.hero p {
+  color: var(--muted);
+  font-size: 18px;
   margin-bottom: 36px;
 }
 
@@ -49,7 +50,7 @@
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
   padding: 20px 48px;
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
   gap: 48px;
 }
 
@@ -77,12 +78,21 @@
 /* ===== 吸顶筛选栏 ===== */
 .filter-wrapper {
   position: sticky;
-  top: 65px;
+  top: 65px; 
   z-index: 50;
   padding: 10px 0;
   margin-bottom: 30px;
-  /* 移除之前的线性渐变硬切，改为全透明 */
   background: transparent;
+  
+  /* 👇 新增：让位移和透明度变化有 0.3 秒的平滑过渡 */
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* 👇 新增：当添加 .hide 类时，筛选框向上飞出并透明化 */
+.filter-wrapper.hide {
+  transform: translateY(-150%);
+  opacity: 0;
+  pointer-events: none; /* 隐藏时防止被误触 */
 }
 
 .filter-section {
@@ -96,7 +106,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
 }
 
 .control-panel {
@@ -127,11 +137,14 @@
   transition: all 0.3s;
 }
 
-.tab-btn:hover { color: var(--text); }
+.tab-btn:hover {
+  color: var(--text);
+}
+
 .tab-btn.active {
   background: #fff;
   color: var(--text);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .tab-btn .count {
@@ -141,7 +154,11 @@
   border-radius: 10px;
   margin-left: 6px;
 }
-.tab-btn.active .count { background: var(--accent); color: #fff; }
+
+.tab-btn.active .count {
+  background: var(--accent);
+  color: #fff;
+}
 
 .search-box {
   display: flex;
@@ -153,22 +170,49 @@
   transition: all 0.3s;
   flex: 1;
   max-width: 300px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
+
 .search-box:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
-.search-box svg { width: 18px; height: 18px; color: var(--muted); }
-.search-box input {
-  border: none; background: transparent; outline: none;
-  padding: 10px 12px; width: 100%; font-size: 14px; color: var(--text);
+
+.search-box svg {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
 }
 
-.filter-divider { height: 1px; background: var(--line); margin: 4px 0; }
+.search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 10px 12px;
+  width: 100%;
+  font-size: 14px;
+  color: var(--text);
+}
 
-.filter-group { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-.filter-label { color: var(--text); font-size: 14px; font-weight: 800; margin-right: 8px; }
+.filter-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 4px 0;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-label {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 800;
+  margin-right: 8px;
+}
 
 .filter-btn {
   background: transparent;
@@ -181,8 +225,20 @@
   font-weight: 500;
   transition: all 0.2s;
 }
-.filter-btn:hover { border-color: var(--accent); color: var(--accent); background: #fff; }
-.filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+
+.filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #fff;
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
 
 /* ===== 游戏卡片升级 ===== */
 .game-grid {
@@ -200,12 +256,12 @@
   text-decoration: none;
   color: inherit;
   border: 1px solid var(--line);
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s, border-color 0.4s;
   display: flex;
   flex-direction: column;
   position: relative;
-  
+
   /* 入场动画 */
   opacity: 0;
   transform: translateY(20px);
@@ -213,7 +269,10 @@
 }
 
 @keyframes slideUp {
-  to { opacity: 1; transform: translateY(0); }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .game-card:hover {
@@ -237,14 +296,14 @@
 }
 
 .game-card:hover .cover-img {
-  transform: scale(1.08); 
+  transform: scale(1.08);
 }
 
 .card-cover::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 60%, rgba(255,255,255,0.9));
+  background: linear-gradient(to bottom, transparent 60%, rgba(255, 255, 255, 0.9));
   pointer-events: none;
 }
 
@@ -258,7 +317,7 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -267,12 +326,41 @@
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: var(--shadow-sm);
 }
-.card-fav-btn:hover { transform: scale(1.15); background: #fff; }
-.card-fav-btn:active { transform: scale(0.9); }
 
-.card-content { padding: 20px 24px; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; margin-top: -24px; }
-.card-title { margin: 0 0 8px; font-size: 22px; color: var(--text); font-weight: 800; display: flex; align-items: baseline; gap: 8px; }
-.card-en { font-size: 13px; color: var(--muted); font-weight: 500; }
+.card-fav-btn:hover {
+  transform: scale(1.15);
+  background: #fff;
+}
+
+.card-fav-btn:active {
+  transform: scale(0.9);
+}
+
+.card-content {
+  padding: 20px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  margin-top: -24px;
+}
+
+.card-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  color: var(--text);
+  font-weight: 800;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.card-en {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
 
 .card-meta {
   display: flex;
@@ -282,27 +370,292 @@
   font-weight: 700;
   margin-bottom: 12px;
 }
-.meta-rating { color: #f59e0b; }
-.meta-divider { color: var(--line); }
-.meta-hours { color: var(--muted); }
 
-.card-desc { margin: 0 0 16px; font-size: 14px; color: var(--muted); line-height: 1.6; flex: 1; }
+.meta-rating {
+  color: #f59e0b;
+}
 
-.card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
-.tag { font-size: 12px; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
-.tag-platform { background: rgba(99, 102, 241, 0.1); color: var(--accent); }
-.tag-genre { background: #f1f5f9; color: var(--muted); border: 1px solid var(--line); }
+.meta-divider {
+  color: var(--line);
+}
+
+.meta-hours {
+  color: var(--muted);
+}
+
+.card-desc {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.tag-platform {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent);
+}
+
+.tag-genre {
+  background: #f1f5f9;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
 
 .no-result {
-  grid-column: 1 / -1; text-align: center; padding: 60px; color: var(--muted);
-  background: var(--panel); border-radius: var(--radius); border: 1px dashed var(--line);
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px dashed var(--line);
 }
 
 @media (max-width: 768px) {
-  .hero h1 { font-size: 32px; }
-  .stats-board { padding: 12px 24px; gap: 20px; }
-  .stat-num { font-size: 22px; }
-  .control-panel { flex-direction: column; align-items: stretch; }
-  .search-box { max-width: 100%; }
-  .filter-wrapper { top: 60px; }
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .stats-board {
+    padding: 12px 24px;
+    gap: 20px;
+  }
+
+  .stat-num {
+    font-size: 22px;
+  }
+
+  .control-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .filter-wrapper {
+    top: 60px;
+  }
+}
+
+/* ========================================= */
+/* ================= 首屏视觉区 ================= */
+/* ========================================= */
+#hero-section {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+
+  /* 🎨 更换背景图：这里我放了 3 张不同风格的游戏感高清图，你可以任选其一 */
+  /* 风格1：暗黑史诗感 */
+  /* background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop'); */
+
+  /* 风格2：赛博霓虹感（推荐） */
+  background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop');
+
+  /* 风格3：如果用了本地图片，取消下面这行的注释并修改路径 */
+  /* background-image: url('../image/你的图片名.jpg'); */
+
+  background-size: cover;
+  background-position: center;
+  /* ⚠️ 注意：移除了 background-attachment: fixed，防止滚动卡顿 */
+
+  /* 用纯 CSS 加一个深色渐变遮罩，保证文字清晰 */
+  box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, 0.6);
+}
+
+/* 首屏内容的视差容器 */
+.hero-content {
+  z-index: 2;
+  will-change: transform, opacity;
+  /* 性能优化，提示浏览器准备动画 */
+}
+
+.hero-title {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 3rem;
+  letter-spacing: 1px;
+}
+
+/* ===== 1. 优化后的“下滑探索”按钮 ===== */
+.scroll-hint {
+  position: absolute;
+  bottom: 0px;
+  /* 👈 把这里的数值改小，比如 15px 或 20px，让它贴着底部 */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  padding: 10px 24px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(4px);
+  animation: floatDown 2s infinite ease-in-out;
+  transition: all 0.3s;
+}
+
+.scroll-hint:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
+}
+
+/* 向下的小箭头图标 */
+.scroll-hint::after {
+  content: '↓';
+  font-size: 16px;
+  font-weight: 900;
+}
+
+/* ===== 2. 优化后的右下角悬浮按钮（改为向上箭头） ===== */
+.explore-fab {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--shadow-lg);
+
+  /* 初始状态：藏在下方 */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(30px) scale(0.8);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 100;
+}
+
+.explore-fab.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.explore-fab:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+}
+
+.explore-fab svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s;
+}
+
+/* 按钮悬浮时，箭头往上提一下 */
+.explore-fab:hover svg {
+  transform: translateY(-3px);
+}
+
+/* 重新定义平滑的浮动动画 */
+@keyframes floatDown {
+
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+/* ===== 动画定义 ===== */
+@keyframes bounce {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  40% {
+    transform: translateX(-50%) translateY(-15px);
+  }
+
+  60% {
+    transform: translateX(-50%) translateY(-7px);
+  }
+}
+
+/* --- 动画定义 --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  40% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+
+  60% {
+    transform: translateX(-50%) translateY(-5px);
+  }
 }
