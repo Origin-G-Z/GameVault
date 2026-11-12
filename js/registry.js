@@ -1,5 +1,18 @@
 // js/registry.js
-const GAMES = [
+
+// ================= 全局注册机制（兼容大小写） =================
+window.GAME_DB = {};
+
+// 定义一个内部函数
+window.registerGame = function(gameData) {
+  window.GAME_DB[gameData.id] = gameData;
+};
+
+// 兼容报错中全小写的调用方式
+window.registergame = window.registerGame; 
+
+// 挂载到 window，以便 detail.js 可以直接访问
+window.GAMES = [
   {
     id: 'cs2',
     file: './game/cs2.js',
@@ -111,7 +124,8 @@ const GAMES = [
     desc: '开放世界赛车游戏，在墨西哥的广阔地图中体验极致的速度与风景。',
     cover: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=800&auto=format&fit=crop',
     platforms: ['PC', 'Xbox'],
-    genres: ['竞速', '开放世界', '体育']
+    genres: ['竞速', '开放世界', '体育'],
+    isFavorite: true
   },
   {
     id: 'forza-motorsport',
@@ -136,11 +150,11 @@ const GAMES = [
   },
   {
     id: 'fc26',
-    file: './game/fc26.js', // 注意这里指向了新建的 fc26.js
+    file: './game/fc26.js',
     title: 'EA SPORTS FC 26',
     en: 'EA SPORTS FC 26',
     desc: '站在一个微妙的位置上：EA把“真实足球”做成了一个仅限离线的橱窗，而在线玩家仍被留在了那个更快、更滑的旧世界里。',
-    cover: './image/fc26.jpg', // 足球场封面图
+    cover: './image/fc26.jpg',
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
     genres: ['体育', '足球', '竞技']
   },
@@ -244,7 +258,8 @@ const GAMES = [
     desc: '拥有近乎无限星球的太空探索生存游戏，历经更新口碑逆袭。',
     cover: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop',
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
-    genres: ['独立', '探索', '太空']
+    genres: ['独立', '探索', '太空'],
+    isFavorite: true
   },
   {
     id: 'it-takes-two',
@@ -317,10 +332,15 @@ const GAMES = [
     platforms: ['PS5'],
     genres: ['动作', '生存', '剧情'],
     isFavorite: true
+  },
+  {
+    id: 'back-to-the-dawn',
+    file: './game/back-to-the-dawn.js',
+    title: '动物迷城',
+    en: 'Back to the Dawn',
+    desc: '扮演动物在监狱中生存并谋划越狱的CRPG，剧情和玩法都很扎实。',
+    cover: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=800&auto=format&fit=crop',
+    platforms: ['PC'],
+    genres: ['RPG', '剧情', '独立']
   }
 ];
-// 补充一个全局存储和注册函数
-window.GAME_DB = {};
-window.registerGame = function (gameData) {
-  window.GAME_DB[gameData.id] = gameData;
-};

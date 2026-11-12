@@ -1,62 +1,55 @@
 // js/detail.js
-import { GAMES } from './registry.js';
-import { renderGame } from './renderer.js';
-
 const appEl = document.getElementById('app');
-const backToTopBtn = document.getElementById('back-to-top');
+const backToTopBtn = document.getElementById('back-to-top'); 
 
-async function init() {
-  // 1. 获取 URL 参数 ?id=xxx
+function init() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
-
-  // 2. 查找游戏基础配置
-  const meta = GAMES.find(g => g.id === id);
-
+  
+  // 1. 从 registry.js 提供的 GAMES 数组中找基础信息
+  // 注意：如果你在 registry.js 里没有把 GAMES 挂载到 window，这里直接访问可能会报错
+  const meta = window.GAMES ? window.GAMES.find(g => g.id === id) : null;
+  
   if (!meta) {
-    appEl.innerHTML = `<div class="error">找不到该游戏，<a href="../index.html">返回首页</a></div>`;
+    appEl.innerHTML = `<div class="error">找不到该游戏的基础信息，<a href="../index.html">返回首页</a></div>`;
     return;
   }
 
-  appEl.innerHTML = `<div class="loading">正在加载深度鉴赏...</div>`;
+  // 2. 从全局游戏数据库（GAME_DB）中获取详细长文数据
+  const gameData = window.GAME_DB ? window.GAME_DB[id] : null;
+  
+  if (!gameData) {
+    appEl.innerHTML = `<div class="error">找不到该游戏的详细数据，请检查 HTML 是否引入了对应的 js 文件。<br><br><a href="../index.html">返回首页</a></div>`;
+    return;
+  }
 
-  try {
-    // 3. 动态导入游戏详细数据文件
-    const gameData = window.GAME_DB[id];
-    if (!gameData) {
-      appEl.innerHTML = `<div class="error">数据加载失败</div>`;
-      return;
-    }
+  // 3. 获取当前收藏状态
+  let favorites = JSON.parse(localStorage.getItem('gv_favorites')) || [];
+  let isFav = favorites.includes(id);
 
-    // 4. 获取当前收藏状态
-    let favorites = JSON.parse(localStorage.getItem('gv_favorites')) || [];
-    let isFav = favorites.includes(id);
+  // 4. 渲染页面结构
+  appEl.innerHTML = `
+    <div class="back-nav">
+      <a href="../index.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        返回游戏库
+      </a>
+    </div>
 
-    // 5. 渲染页面结构（包含新的返回按钮、收藏按钮、以及大图渲染）
-    appEl.innerHTML = `
-      <!-- 返回按钮（新版带 SVG 图标） -->
-      <div class="back-nav">
-        <a href="../index.html" class="back-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          返回游戏库
-        </a>
-      </div>
+    <div class="detail-top-bar">
+      <button id="detail-fav-btn" class="detail-fav-btn ${isFav ? 'is-fav' : ''}">
+        ${isFav ? '❤️ 已加入喜欢' : '🤍 加入喜欢'}
+      </button>
+    </div>
 
-      <!-- 顶部操作栏 -->
-      <div class="detail-top-bar">
-        <button id="detail-fav-btn" class="detail-fav-btn ${isFav ? 'is-fav' : ''}">
-          ${isFav ? '❤️ 已加入喜欢' : '🤍 加入喜欢'}
-        </button>
-      </div>
+    ${renderGame(gameData, meta)}
+  `;
 
-      <!-- 注入 renderer 渲染的核心内容 -->
-      ${renderGame(gameData, meta)}
-    `;
-
-    // 6. 绑定详情页的收藏按钮事件
-    const favBtn = document.getElementById('detail-fav-btn');
+  // 5. 绑定收藏按钮事件
+  const favBtn = document.getElementById('detail-fav-btn');
+  if (favBtn) {
     favBtn.addEventListener('click', () => {
       favorites = JSON.parse(localStorage.getItem('gv_favorites')) || [];
       const index = favorites.indexOf(id);
@@ -74,32 +67,27 @@ async function init() {
       }
       localStorage.setItem('gv_favorites', JSON.stringify(favorites));
     });
-
-    // 7. 更新页面标题并重置滚动条
-    document.title = `${gameData.title} · GameVault`;
-    window.scrollTo(0, 0);
-  } catch (err) {
-    console.error('加载失败:', err);
-    appEl.innerHTML = `<div class="error">数据加载失败，请检查控制台或文件路径。</div>`;
   }
+
+  // 更新标题并置顶
+  document.title = `${gameData.title} · GameVault`;
+  window.scrollTo(0, 0);
 }
 
-// ================= 滚动事件：控制返回顶部按钮 =================
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 400) {
-    backToTopBtn.classList.add('show');
-  } else {
-    backToTopBtn.classList.remove('show');
-  }
-});
-
-// ================= 返回顶部按钮点击事件 =================
-backToTopBtn.addEventListener('click', () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
+// ================= 返回顶部交互逻辑 =================
+if (backToTopBtn) {
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) {
+      backToTopBtn.classList.add('show');
+    } else {
+      backToTopBtn.classList.remove('show');
+    }
   });
-});
+
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
 
 // 启动
-init();
+document.addEventListener('DOMContentLoaded', init);
