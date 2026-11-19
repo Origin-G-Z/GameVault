@@ -97,10 +97,54 @@
 .theme-picker {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 10px;
+  gap: 8px;
+  padding: 5px 12px 5px 14px;
   border-radius: 999px;
   background: var(--panel-2);
+  /* 主题名会随选择变化，这里固定宽度防止整条 header 抖动 */
+  transition: background 0.3s;
+}
+
+.theme-picker:hover {
+  background: #eceff5;
+}
+
+/* 左侧"主题"字样 */
+.theme-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* 当前主题名称 */
+.theme-current {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  white-space: nowrap;
+  min-width: 26px;
+  transition: color 0.3s;
+}
+
+.theme-current.pulse {
+  animation: themeNamePulse 0.4s ease;
+}
+
+@keyframes themeNamePulse {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* 色点容器 */
+.theme-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-left: 8px;
+  border-left: 1px solid var(--line);
 }
 
 .theme-dot {
@@ -134,8 +178,53 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
+/* 悬浮时显示主题名称。
+   注意：气泡放在色点"下方"而不是上方——
+   色点距页面顶端仅约 25px，放上方会被视口顶部裁掉。 */
+.theme-dot-tip {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 30;
+}
+
+/* 小三角：指向色点（气泡在上方，尖端朝上） */
+.theme-dot-tip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: rgba(15, 23, 42, 0.9);
+}
+
+.theme-dot:hover .theme-dot-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 键盘聚焦时的可见焦点环 */
+.theme-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* 窄屏隐藏主题选择器，避免挤压搜索框 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .theme-picker { display: none; }
 }
 

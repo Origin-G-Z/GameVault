@@ -64,24 +64,45 @@
     if (!host) return;
 
     var current = getSavedTheme();
+    var currentTheme = THEMES.filter(function (t) { return t.id === current; })[0] || THEMES[0];
 
-    host.innerHTML = THEMES.map(function (t) {
+    // 左侧文字标签 + 当前主题名，让用户一眼知道这排色点是干什么的
+    var label = '<span class="theme-label">主题</span>' +
+                '<span class="theme-current" id="theme-current">' + currentTheme.name + '</span>';
+
+    var dots = THEMES.map(function (t) {
       return '<button class="theme-dot' + (t.id === current ? ' active' : '') + '" ' +
              'data-theme-id="' + t.id + '" ' +
              'title="' + t.name + '" ' +
              'aria-label="切换到' + t.name + '主题" ' +
-             'style="--dot-color: ' + t.accent + '"></button>';
+             'aria-pressed="' + (t.id === current) + '" ' +
+             'style="--dot-color: ' + t.accent + '">' +
+             '<span class="theme-dot-tip">' + t.name + '</span>' +
+             '</button>';
     }).join('');
+
+    host.innerHTML = label + '<span class="theme-dots">' + dots + '</span>';
 
     host.addEventListener('click', function (e) {
       var dot = e.target.closest('.theme-dot');
       if (!dot) return;
       var id = dot.getAttribute('data-theme-id');
-      applyTheme(id);
+      var t = applyTheme(id);
       saveTheme(id);
+
       host.querySelectorAll('.theme-dot').forEach(function (d) {
-        d.classList.toggle('active', d === dot);
+        var on = d === dot;
+        d.classList.toggle('active', on);
+        d.setAttribute('aria-pressed', String(on));
       });
+
+      // 同步更新右侧显示的当前主题名
+      var cur = document.getElementById('theme-current');
+      if (cur) {
+        cur.textContent = t.name;
+        cur.classList.add('pulse');
+        setTimeout(function () { cur.classList.remove('pulse'); }, 400);
+      }
     });
   }
 

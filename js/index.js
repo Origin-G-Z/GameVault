@@ -177,31 +177,93 @@ function resetAllFilters() {
   syncCoverImages();
 }
 
-// 随机推荐：抽一款，滚动过去并高亮
+// 随机推荐：在当前可见的卡片里抽一款，让它原地上下跳动
+// 注意：这里不重置筛选、不重新渲染列表，
+// 避免整页卡片"消失再重新加载"的观感。
 function rollLuckyGame() {
-  // 先把筛选清空，否则可能抽不到任何卡片
-  if (activeTab !== 'all' || activePlatform !== '全部' || activeGenre !== '全部' || searchQuery) {
+  const cards = [...document.querySelectorAll('#game-grid .game-card')];
+
+  // 当前没有任何卡片（空状态）时才退回全部游戏
+  if (!cards.length) {
     resetAllFilters();
+    const retry = [...document.querySelectorAll('#game-grid .game-card')];
+    if (!retry.length) return;
+    animateLuckyCard(retry[Math.floor(Math.random() * retry.length)]);
+    return;
   }
 
-  const cards = document.querySelectorAll('#game-grid .game-card');
-  if (!cards.length) return;
+  // 避免连续两次抽到同一张，显得随机性更好
+  let pool = cards;
+  if (cards.length > 1) {
+    const last = document.querySelector('.game-card.lucky-bounce');
+    if (last) pool = cards.filter(c => c !== last);
+  }
 
-  const pick = Math.floor(Math.random() * cards.length);
-  const card = cards[pick];
+  animateLuckyCard(pool[Math.floor(Math.random() * pool.length)]);
+}
 
-  // 清除上一次的高亮
-  document.querySelectorAll('.game-card.lucky-highlight').forEach(c => c.classList.remove('lucky-highlight'));
+// 跳动动画实例：只保留一个，连点时先取消上一轮
+let luckyAnim = null;
+let luckyTimer = null;
 
-  // 滚动到该卡片（尽量居中显示）
-  const top = card.getBoundingClientRect().top + window.pageYOffset - (window.innerHeight - card.offsetHeight) / 2;
-  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+// 让指定卡片上下跳动：只添加一个高亮 class，位移交给 Web Animations API
+// 这样做的好处是完全不触碰 CSS 的 animation 属性，
+// 不会顶掉卡片自身的入场动画，也就不会出现"消失再重新加载"的闪烁。
+function animateLuckyCard(card) {
+  if (!card) return;
 
-  // 滚动结束后再加高亮，保证动画能重新触发
-  setTimeout(() => {
-    card.classList.add('lucky-highlight');
-    setTimeout(() => card.classList.remove('lucky-highlight'), 2400);
-  }, 450);
+  // 清理上一轮
+  if (luckyAnim) {
+    try { luckyAnim.cancel(); } catch (e) { /* 已结束则忽略 */ }
+    luckyAnim = null;
+  }
+  if (luckyTimer) {
+    clearTimeout(luckyTimer);
+    luckyTimer = null;
+  }
+  document.querySelectorAll('.game-card.lucky-bounce').forEach(c => c.classList.remove('lucky-bounce'));
+
+  // 卡片不在视口内时，才做一次最小幅度的滚动，否则用户看不到跳动
+  const rect = card.getBoundingClientRect();
+  const topLimit = 120;                       // 顶部导航 + 筛选框的大致高度
+  const bottomLimit = window.innerHeight - 20;
+  if (rect.top < topLimit || rect.bottom > bottomLimit) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  card.classList.add('lucky-bounce');
+
+  const reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduceMotion && typeof card.animate === 'function') {
+    // 用独立的 translate 属性做位移：
+    // 卡片自身的入场动画占用 transform，translate 与它互不干扰
+    luckyAnim = card.animate([
+      { translate: '0 0' },
+      { translate: '0 -18px', offset: 0.22 },
+      { translate: '0 0', offset: 0.45 },
+      { translate: '0 -9px', offset: 0.62 },
+      { translate: '0 0', offset: 0.80 },
+      { translate: '0 -3px', offset: 0.90 },
+      { translate: '0 0' }
+    ], {
+      duration: 620,
+      iterations: 3,          // 共约 1.9 秒
+      easing: 'cubic-bezier(0.36, 0.07, 0.19, 0.97)'
+    });
+
+    luckyAnim.onfinish = function () {
+      card.classList.remove('lucky-bounce');
+      luckyAnim = null;
+    };
+  } else {
+    // 降级：不支持 WAAPI 或用户要求减少动效时，只保留高亮，1 秒后移除
+    luckyTimer = setTimeout(function () {
+      card.classList.remove('lucky-bounce');
+      luckyTimer = null;
+    }, 1000);
+  }
 }
 
 function renderCards() {
