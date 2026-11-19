@@ -99,6 +99,36 @@ function updateSocialMeta(gameData, meta) {
   setMeta('meta[name="twitter:image"]', 'content', cover);
 }
 
+// ================= 阅读进度条 =================
+(function initReadingProgress() {
+  var bar = document.getElementById('reading-progress-bar');
+  if (!bar) return;
+
+  var ticking = false;
+
+  function update() {
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight - window.innerHeight;
+    var percent = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+    // 限制在 0~100，避免回弹时出现负值或超过
+    percent = Math.max(0, Math.min(100, percent));
+    bar.style.width = percent.toFixed(2) + '%';
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      window.requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // 窗口尺寸变化时重新计算（长文图片加载完成后高度会变）
+  window.addEventListener('resize', update);
+  window.addEventListener('load', update);
+  update();
+})();
+
 // ================= 返回顶部交互逻辑 =================
 if (backToTopBtn) {
   window.addEventListener('scroll', () => {

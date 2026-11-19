@@ -29,6 +29,11 @@
   <link rel="stylesheet" href="../css/detail.css">
 </head>
 <body id="top">
+  <!-- 阅读进度条：随页面滚动填充 -->
+  <div class="reading-progress" aria-hidden="true">
+    <div class="reading-progress-bar" id="reading-progress-bar"></div>
+  </div>
+
   <header class="site-header">
     <div class="header-left">
       <a class="brand" href="../index.html">🎮 GameVault</a>
@@ -47,11 +52,17 @@
       </a>
     </div>
 
-    <!-- 详情页没有游戏列表可搜，这里的搜索框会带着关键词跳回首页 -->
-    <form class="header-search" id="header-search-form" action="../index.html" method="get">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input type="text" id="header-search-input" name="q" placeholder="搜索游戏..." autocomplete="off">
-    </form>
+    <!-- 右侧操作区：主题色 + 搜索 -->
+    <div class="header-right">
+      <!-- 主题色选择器（由 js/theme.js 渲染色点） -->
+      <div class="theme-picker" id="theme-picker" aria-label="主题色选择"></div>
+
+      <!-- 详情页没有游戏列表可搜，这里的搜索框会带着关键词跳回首页 -->
+      <form class="header-search" id="header-search-form" action="../index.html" method="get">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="text" id="header-search-input" name="q" placeholder="搜索游戏..." autocomplete="off">
+      </form>
+    </div>
   </header>
   
   <main id="app"></main>
@@ -133,6 +144,7 @@
   <script src="../js/game/tlou2.js"></script>
 
   <!-- 3. 详情页逻辑控制 -->
+  <script src="../js/theme.js"></script>
   <script src="../js/header.js"></script>
   <script src="../js/detail.js"></script>
 </body>

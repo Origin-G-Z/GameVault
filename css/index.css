@@ -15,7 +15,7 @@
   max-width: 1400px;
   height: 600px;
   /* 超大、极柔和的径向渐变，自然融入背景 */
-  background: radial-gradient(ellipse at top, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse at top, rgba(var(--accent-rgb), 0.12) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
 }
@@ -31,7 +31,7 @@
   color: var(--text);
   font-weight: 900;
   letter-spacing: -1px;
-  background: linear-gradient(135deg, #1e293b, #6366f1);
+  background: linear-gradient(135deg, #1e293b, var(--accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -200,7 +200,7 @@
 
 .search-box:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
 }
 
 .search-box svg {
@@ -296,7 +296,7 @@
 .filter-more-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(99, 102, 241, 0.07);
+  background: rgba(var(--accent-rgb), 0.07);
   border-style: solid;
 }
 
@@ -330,7 +330,7 @@
   border-color: var(--accent);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
 }
 
 /* ===== 游戏卡片升级 ===== */
@@ -370,7 +370,7 @@
 
 .game-card:hover {
   transform: translateY(-8px);
-  border-color: rgba(99, 102, 241, 0.5);
+  border-color: rgba(var(--accent-rgb), 0.5);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
@@ -385,7 +385,47 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease;
+}
+
+/* ===== 骨架屏 ===== */
+/* 说明：图片采用 loading="lazy"，未进入视口时浏览器根本还没开始加载。
+   若此时就用 opacity:0 隐藏，用户滚到那里会看到一片空白。
+   因此这里不隐藏图片，而是让骨架铺在图片下方；
+   图片真正解码完成后淡入，骨架淡出。 */
+.cover-img.is-loaded {
+  animation: imgFadeIn 0.5s ease both;
+}
+
+@keyframes imgFadeIn {
+  from { opacity: 0.35; transform: scale(1.03); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* 骨架占位：铺在封面图下面，图片渲染出来后被覆盖 */
+.card-cover .skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg,
+    var(--panel-2) 30%,
+    #e8edf5 50%,
+    var(--panel-2) 70%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  z-index: 0;
+  transition: opacity 0.45s ease;
+}
+
+@keyframes skeletonShimmer {
+  0%   { background-position: 150% 0; }
+  100% { background-position: -50% 0; }
+}
+
+/* 图片加载完后骨架淡出 */
+.card-cover.loaded .skeleton {
+  opacity: 0;
 }
 
 .game-card:hover .cover-img {
@@ -499,7 +539,7 @@
 }
 
 .tag-platform {
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(var(--accent-rgb), 0.1);
   color: var(--accent);
 }
 
@@ -517,6 +557,103 @@
   background: var(--panel);
   border-radius: var(--radius);
   border: 1px dashed var(--line);
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 64px 32px 72px;
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px dashed var(--line);
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.empty-icon {
+  width: 76px;
+  height: 76px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
+  /* 用轻微缩放代替上下浮动：缩放不会改变元素占位，
+     避免图标浮出卡片边界压到筛选框 */
+  animation: emptyPulse 3.2s ease-in-out infinite;
+}
+
+.empty-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+@keyframes emptyPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+
+.empty-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.empty-desc {
+  margin: 0 0 26px;
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 420px;
+}
+
+.empty-desc strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.empty-btn {
+  padding: 10px 22px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.empty-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.15);
+}
+
+.empty-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.3);
+}
+
+.empty-btn.primary:hover {
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(var(--accent-rgb), 0.4);
 }
 
 @media (max-width: 768px) {
@@ -644,11 +781,19 @@
   font-weight: 900;
 }
 
-/* ===== 2. 优化后的右下角悬浮按钮（改为向上箭头） ===== */
-.explore-fab {
+/* ===== 2. 右下角悬浮操作区 ===== */
+.fab-stack {
   position: fixed;
   bottom: 40px;
   right: 40px;
+  display: flex;
+  flex-direction: column-reverse;   /* 随机按钮在上，返回列表在下 */
+  align-items: center;
+  gap: 14px;
+  z-index: 100;
+}
+
+.fab {
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -660,13 +805,15 @@
   justify-content: center;
   align-items: center;
   box-shadow: var(--shadow-lg);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
 
-  /* 初始状态：藏在下方 */
+/* 返回列表按钮：初始藏在下方 */
+.explore-fab {
   opacity: 0;
   visibility: hidden;
   transform: translateY(30px) scale(0.8);
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 100;
 }
 
 .explore-fab.visible {
@@ -675,14 +822,14 @@
   transform: translateY(0) scale(1);
 }
 
-.explore-fab:hover {
+.fab:hover {
   color: var(--accent);
   border-color: var(--accent);
   transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.2);
 }
 
-.explore-fab svg {
+.fab svg {
   width: 24px;
   height: 24px;
   transition: transform 0.3s;
@@ -691,6 +838,61 @@
 /* 按钮悬浮时，箭头往上提一下 */
 .explore-fab:hover svg {
   transform: translateY(-3px);
+}
+
+/* ===== 随机推荐按钮 ===== */
+.fab-lucky {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.35);
+}
+
+.fab-lucky:hover {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(var(--accent-rgb), 0.45);
+}
+
+.fab-lucky:hover svg {
+  transform: rotate(20deg) scale(1.1);
+}
+
+/* 悬浮提示气泡 */
+.fab-tip {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fab-lucky:hover .fab-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* 抽中时的高亮脉冲 */
+.game-card.lucky-highlight {
+  animation: luckyPulse 1.1s ease-out 2;
+  border-color: var(--accent) !important;
+}
+
+@keyframes luckyPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.5); }
+  70%  { box-shadow: 0 0 0 16px rgba(var(--accent-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
 }
 
 /* 重新定义平滑的浮动动画 */

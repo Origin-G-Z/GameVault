@@ -111,6 +111,99 @@ function renderFilterBtns(list, current, type) {
   `;
 }
 
+// ================= 空状态 =================
+// 根据"为什么没结果"给出不同的提示和对应的解决按钮
+function renderEmptyState() {
+  const conds = [];
+  if (searchQuery) conds.push(`关键词「${searchQuery}」`);
+  if (activePlatform !== '全部') conds.push(`平台「${activePlatform}」`);
+  if (activeGenre !== '全部') conds.push(`类型「${activeGenre}」`);
+  if (activeTab === 'fav') conds.push('「我喜欢的」');
+
+  // 收藏夹本身为空
+  if (activeTab === 'fav' && favorites.length === 0) {
+    return `
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8Z"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">收藏夹还是空的</h3>
+        <p class="empty-desc">在游戏卡片右上角点击爱心，就能把喜欢的游戏收进这里。</p>
+        <div class="empty-actions">
+          <button class="empty-btn primary" data-empty-action="show-all">去逛逛全部游戏</button>
+        </div>
+      </div>`;
+  }
+
+  const condText = conds.length ? conds.join(' + ') : '当前条件';
+
+  return `
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10.5" cy="10.5" r="6.5"/>
+          <path d="m20 20-4.7-4.7"/>
+          <path d="M10.5 7.5v6M7.5 10.5h6" opacity="0.45"/>
+        </svg>
+      </div>
+      <h3 class="empty-title">没有找到符合条件的游戏</h3>
+      <p class="empty-desc">你正在筛选：<strong>${condText}</strong><br>试试放宽条件，或者清空后重新找找。</p>
+      <div class="empty-actions">
+        <button class="empty-btn primary" data-empty-action="reset">清空全部筛选</button>
+        ${activeTab === 'fav' ? '<button class="empty-btn" data-empty-action="show-all">查看全部游戏</button>' : ''}
+        <button class="empty-btn" data-empty-action="lucky">随机推荐一款</button>
+      </div>
+    </div>`;
+}
+
+// 重置所有筛选条件并重建页面
+function resetAllFilters() {
+  activeTab = 'all';
+  activePlatform = '全部';
+  activeGenre = '全部';
+  searchQuery = '';
+  genreExpanded = false;
+  initLibrary();
+
+  // 同步清空两处搜索框的输入值，否则界面上还留着旧关键词
+  const pageSearch = document.getElementById('search-input');
+  const headerSearch = document.getElementById('header-search-input');
+  if (pageSearch) pageSearch.value = '';
+  if (headerSearch) headerSearch.value = '';
+
+  // 清空搜索若导致列表重建，需要重新绑定骨架屏状态
+  syncCoverImages();
+}
+
+// 随机推荐：抽一款，滚动过去并高亮
+function rollLuckyGame() {
+  // 先把筛选清空，否则可能抽不到任何卡片
+  if (activeTab !== 'all' || activePlatform !== '全部' || activeGenre !== '全部' || searchQuery) {
+    resetAllFilters();
+  }
+
+  const cards = document.querySelectorAll('#game-grid .game-card');
+  if (!cards.length) return;
+
+  const pick = Math.floor(Math.random() * cards.length);
+  const card = cards[pick];
+
+  // 清除上一次的高亮
+  document.querySelectorAll('.game-card.lucky-highlight').forEach(c => c.classList.remove('lucky-highlight'));
+
+  // 滚动到该卡片（尽量居中显示）
+  const top = card.getBoundingClientRect().top + window.pageYOffset - (window.innerHeight - card.offsetHeight) / 2;
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+
+  // 滚动结束后再加高亮，保证动画能重新触发
+  setTimeout(() => {
+    card.classList.add('lucky-highlight');
+    setTimeout(() => card.classList.remove('lucky-highlight'), 2400);
+  }, 450);
+}
+
 function renderCards() {
   const grid = document.getElementById('game-grid');
   if (!grid) return;
@@ -125,7 +218,7 @@ function renderCards() {
   });
 
   if (filteredGames.length === 0) {
-    grid.innerHTML = `<div class="no-result">没有找到符合条件的游戏，请尝试放宽筛选条件。</div>`;
+    grid.innerHTML = renderEmptyState();
     return;
   }
 
@@ -144,7 +237,9 @@ function renderCards() {
     return `
       <a href="./pages/detail.html?id=${g.id}" class="game-card" style="animation-delay: ${index * 0.04}s">
         <div class="card-cover">
-          <img src="${displayCover}" alt="${g.title}" loading="lazy" class="cover-img">
+          <div class="skeleton"></div>
+          <img src="${displayCover}" alt="${g.title}" loading="lazy"
+               class="cover-img is-loading" data-src="${displayCover}">
           <button class="card-fav-btn ${isFav ? 'is-fav' : ''}" data-id="${g.id}" title="${isFav ? '取消喜欢' : '加入喜欢'}">
             ${isFav ? '❤️' : '🤍'}
           </button>
@@ -167,6 +262,33 @@ function renderCards() {
       </a>
     `;
   }).join('');
+
+  syncCoverImages();
+}
+
+// 绑定骨架屏淡出：封面图加载完（或失败）就移除骨架，避免图未到之前空白
+function syncCoverImages() {
+  const grid = document.getElementById('game-grid');
+  if (!grid) return;
+
+  grid.querySelectorAll('.cover-img').forEach(img => {
+    const cover = img.closest('.card-cover');
+
+    const done = () => {
+      img.classList.remove('is-loading');
+      img.classList.add('is-loaded');
+      if (cover) cover.classList.add('loaded');
+    };
+
+    // 已经缓存命中的图片，complete 为 true 且 naturalWidth > 0
+    if (img.complete && img.naturalWidth > 0) {
+      done();
+    } else {
+      img.addEventListener('load', done, { once: true });
+      // 加载失败也收掉骨架，避免一直转
+      img.addEventListener('error', done, { once: true });
+    }
+  });
 }
 
 // ================= 页面初始化与事件绑定 =================
@@ -340,6 +462,27 @@ function initLibrary() {
     document.getElementById('board-fav-count').textContent = favorites.length;
     renderCards();
   });
+
+  // 绑定空状态里的操作按钮（清空筛选 / 查看全部 / 随机推荐）
+  appEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-empty-action]');
+    if (!btn) return;
+    const act = btn.dataset.emptyAction;
+
+    if (act === 'reset' || act === 'show-all') {
+      resetAllFilters();
+      window.scrollTo({ top: getContentStartY(), behavior: 'smooth' });
+    } else if (act === 'lucky') {
+      rollLuckyGame();
+    }
+  });
+
+  // 绑定随机推荐悬浮按钮
+  const luckyBtn = document.getElementById('lucky-btn');
+  if (luckyBtn && !luckyBtn.dataset.bound) {
+    luckyBtn.dataset.bound = '1';
+    luckyBtn.addEventListener('click', rollLuckyGame);
+  }
 }
 
 
