@@ -490,6 +490,7 @@
 
 /* 首屏内容的视差容器 */
 .hero-content {
+  position: relative;   /* 让内部的「下滑探索」按钮相对内容块定位 */
   z-index: 2;
   will-change: transform, opacity;
   /* 性能优化，提示浏览器准备动画 */
@@ -508,17 +509,19 @@
   font-size: clamp(1rem, 2vw, 1.5rem);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 3rem;
+  margin-bottom: 0;
   letter-spacing: 1px;
 }
 
 /* ===== 1. 优化后的“下滑探索”按钮 ===== */
+/* 按钮脱离文档流、贴在 .hero-content 底部下方一段距离，
+   与副标题保持 64px 间距，任何窗口高度都不会重叠。 */
 .scroll-hint {
   position: absolute;
-  bottom: 40px;
-  /* 与底部留出呼吸距离，避免压在地平线上影响对比度 */
+  top: calc(100% + 64px);
   left: 50%;
   transform: translateX(-50%);
+  white-space: nowrap;
   background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50px;
@@ -533,7 +536,7 @@
   gap: 8px;
   backdrop-filter: blur(4px);
   animation: floatDown 2s infinite ease-in-out;
-  transition: all 0.3s;
+  transition: background 0.3s, border-color 0.3s;
 }
 
 .scroll-hint:hover {
