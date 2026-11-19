@@ -162,12 +162,41 @@ function initLibrary() {
     });
   });
 
-  // 绑定搜索
+  // 绑定搜索（页面内筛选框）
   const searchInput = document.getElementById('search-input');
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.trim();
+    // 同步到顶部迷你搜索框
+    const headerInput = document.getElementById('header-search-input');
+    if (headerInput) headerInput.value = e.target.value;
     renderCards();
   });
+
+  // 绑定顶部迷你搜索框（与页面内搜索框双向同步）
+  const headerSearchInput = document.getElementById('header-search-input');
+  if (headerSearchInput) {
+    // 如果主页加载时带着 ?q= 参数（从详情页搜索跳转而来），自动填入
+    const q = new URLSearchParams(window.location.search).get('q');
+    if (q) {
+      searchQuery = q;
+      searchInput.value = q;
+      headerSearchInput.value = q;
+      renderCards();
+    }
+
+    headerSearchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      // 同步到页面内筛选框
+      searchInput.value = e.target.value;
+      renderCards();
+
+      // 在首屏或列表上方搜索时，自动滚动到结果区，让用户看到搜索结果
+      const grid = document.getElementById('game-grid');
+      if (grid && window.scrollY < getContentStartY()) {
+        scrollToGames();
+      }
+    });
+  }
 
   // 绑定筛选
   appEl.querySelectorAll('.filter-btn').forEach(btn => {
@@ -203,6 +232,28 @@ function initLibrary() {
 
 
 // ================= 首屏滚动交互逻辑 =================
+
+// 动态计算滚动的偏移量，精准定位到第一款游戏（避开顶部导航与吸顶筛选框）
+function getTargetScrollTop() {
+  const gameGrid = document.getElementById('game-grid');
+  if (!gameGrid) return 0;
+  const filterWrapper = document.querySelector('.filter-wrapper');
+  const filterHeight = filterWrapper ? filterWrapper.offsetHeight : 0;
+  const yOffset = -(filterHeight + 65 + 20);
+  return gameGrid.getBoundingClientRect().top + window.pageYOffset + yOffset;
+}
+
+// 平滑滚动到游戏列表
+function scrollToGames() {
+  window.scrollTo({ top: getTargetScrollTop(), behavior: 'smooth' });
+}
+
+// 内容区（首屏以下）的起始位置，用于判断"是否还在首屏区域"
+function getContentStartY() {
+  const contentSection = document.getElementById('content-section');
+  return contentSection ? contentSection.getBoundingClientRect().top + window.pageYOffset : 0;
+}
+
 function initScrollEffects() {
   const heroSection = document.getElementById('hero-section');
   const heroContent = document.querySelector('.hero-content');
@@ -210,19 +261,6 @@ function initScrollEffects() {
   const exploreBtn = document.getElementById('explore-btn');
   const gameGrid = document.getElementById('game-grid');
   const filterWrapper = document.querySelector('.filter-wrapper'); // 获取筛选框
-
-  // 动态计算滚动的偏移量，精准定位到第一款游戏
-  function getTargetScrollTop() {
-    if (!gameGrid) return 0;
-    const filterHeight = filterWrapper ? filterWrapper.offsetHeight : 0;
-    const yOffset = -(filterHeight + 65 + 20);
-    return gameGrid.getBoundingClientRect().top + window.pageYOffset + yOffset;
-  }
-
-  // 点击平滑滚动
-  function scrollToGames() {
-    window.scrollTo({ top: getTargetScrollTop(), behavior: 'smooth' });
-  }
 
   if (scrollHint) scrollHint.addEventListener('click', scrollToGames);
   if (exploreBtn) exploreBtn.addEventListener('click', scrollToGames);

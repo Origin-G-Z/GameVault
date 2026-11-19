@@ -31,6 +31,12 @@
 <body id="top">
   <header class="site-header">
     <a class="brand" href="../index.html">🎮 GameVault</a>
+
+    <!-- 详情页没有游戏列表可搜，这里的搜索框会带着关键词跳回首页 -->
+    <form class="header-search" id="header-search-form" action="../index.html" method="get">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="text" id="header-search-input" name="q" placeholder="搜索游戏..." autocomplete="off">
+    </form>
   </header>
   
   <main id="app"></main>
@@ -38,31 +44,29 @@
   <!-- ================= 页面底部版权页脚 ================= -->
   <footer class="site-footer">
     <div class="footer-inner">
+      <!-- 左上角品牌区 -->
       <div class="footer-brand">
         <span class="footer-logo">🎮 GameVault</span>
         <p class="footer-slogan">记录我的游玩足迹，分享深度体验。</p>
       </div>
 
-      <nav class="footer-links">
-        <a href="#top" class="footer-link" id="footer-top-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 19V5M5 12l7-7 7 7" />
-          </svg>
-          返回顶部
-        </a>
-        <a href="../index.html" class="footer-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 11l9-8 9 8M5 10v10h14V10" />
-          </svg>
-          回到首页
-        </a>
-      </nav>
+      <!-- 右侧：返回顶部 + 技术栈 + 版权，垂直排列 -->
+      <div class="footer-right">
+        <nav class="footer-links">
+          <a href="#top" class="footer-link" id="footer-top-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+            返回顶部
+          </a>
+        </nav>
 
-      <p class="footer-tech">
-        技术栈：<span>HTML5</span><span>CSS3</span><span>原生 JavaScript</span>
-      </p>
+        <p class="footer-tech">
+          技术栈：<span>HTML5</span><span>CSS3</span><span>原生 JavaScript</span>
+        </p>
 
-      <p class="footer-copy">© 2026 GameVault · 保留所有权利</p>
+        <p class="footer-copy">© 2026 GameVault · 保留所有权利</p>
+      </div>
     </div>
   </footer>
 
@@ -114,6 +118,7 @@
   <script src="../js/game/tlou2.js"></script>
 
   <!-- 3. 详情页逻辑控制 -->
+  <script src="../js/header.js"></script>
   <script src="../js/detail.js"></script>
 </body>
 </html>
