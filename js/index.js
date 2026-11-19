@@ -16,9 +16,11 @@ let activeGenre = '全部';
 let searchQuery = '';
 
 // 累计游玩时长：由 registry.js 中每款游戏的 hours 字段实时求和，无需手动维护
-const totalHours = GAMES
-  .reduce((sum, g) => sum + (Number(g.hours) || 0), 0)
-  .toFixed(1);
+// 整数时不显示小数位（2077 而不是 2077.0），有小数时保留一位
+const totalHoursRaw = GAMES.reduce((sum, g) => sum + (Number(g.hours) || 0), 0);
+const totalHours = Number.isInteger(totalHoursRaw)
+  ? String(totalHoursRaw)
+  : totalHoursRaw.toFixed(1);
 
 // ================= 渲染逻辑 =================
 function renderHeaderControls() {

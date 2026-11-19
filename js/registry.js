@@ -23,7 +23,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['射击', '电竞', '硬核'],
     rating: 9.4,
-    hours: 1286,
+    hours: 1027,
     isFavorite: true
   },
   {
@@ -36,7 +36,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox', 'NS2'],
     genres: ['动作', '科幻', '解谜'],
     rating: 8.8,
-    hours: 32.5,
+    hours: 15,
     isFavorite: true
   },
   {
@@ -49,7 +49,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['射击', '战术', '硬核'],
     rating: 8.6,
-    hours: 146.2,
+    hours: 50.5,
   },
   {
     id: 'cod',
@@ -61,7 +61,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['射击', '动作', '多人'],
     rating: 8.2,
-    hours: 88.4,
+    hours: 39.5,
   },
   {
     id: 'ready-or-not',
@@ -73,7 +73,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['射击', '战术', '硬核'],
     rating: 8.9,
-    hours: 64.8,
+    hours: 27.5,
   },
   {
     id: 'battlefield5',
@@ -85,7 +85,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['射击', '动作', '大战场'],
     rating: 7.6,
-    hours: 72.1,
+    hours: 46,
   },
   {
     id: 'titanfall2',
@@ -97,7 +97,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['射击', '动作', '科幻'],
     rating: 9.6,
-    hours: 38.7,
+    hours: 18,
   },
   {
     id: 'apex',
@@ -109,7 +109,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['射击', '吃鸡', '科幻'],
     rating: 8.3,
-    hours: 455.6,
+    hours: 71.5,
   },
   {
     id: 'l4d2',
@@ -121,7 +121,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['射击', '生存', '合作'],
     rating: 9.5,
-    hours: 320.4,
+    hours: 34.5,
   },
   {
     id: 'stellar-blade',
@@ -133,7 +133,7 @@ window.GAMES = [
     platforms: ['PS5', 'PC'],
     genres: ['动作', '冒险', '科幻'],
     rating: 8.7,
-    hours: 58.3,
+    hours: 24.5,
     isFavorite: true
   },
   {
@@ -146,7 +146,7 @@ window.GAMES = [
     platforms: ['PC', 'Xbox'],
     genres: ['竞速', '开放世界', '体育'],
     rating: 9.2,
-    hours: 214.9,
+    hours: 60.5,
     isFavorite: true
   },
   {
@@ -159,7 +159,7 @@ window.GAMES = [
     platforms: ['PC', 'Xbox'],
     genres: ['竞速', '拟真', '体育'],
     rating: 7.9,
-    hours: 96.5,
+    hours: 21.5,
     isFavorite: true
   },
   {
@@ -172,7 +172,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['竞速', '体育', '拟真'],
     rating: 8.1,
-    hours: 41.2,
+    hours: 15.5,
   },
   {
     id: 'fc26',
@@ -184,7 +184,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
     genres: ['体育', '足球', '竞技'],
     rating: 7.4,
-    hours: 128.7,
+    hours: 36.5,
   },
   {
     id: 'msfs',
@@ -196,7 +196,7 @@ window.GAMES = [
     platforms: ['PC', 'Xbox'],
     genres: ['模拟', '飞行', '硬核'],
     rating: 8.5,
-    hours: 53.6,
+    hours: 22.5,
   },
   {
     id: 'cities-skylines2',
@@ -208,7 +208,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['模拟', '策略', '城建'],
     rating: 8.0,
-    hours: 87.3,
+    hours: 31,
     isFavorite: true
   },
   {
@@ -221,7 +221,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
     genres: ['模拟', '策略', '城建'],
     rating: 9.0,
-    hours: 236.8,
+    hours: 78,
   },
   {
     id: 'civilization6',
@@ -233,7 +233,7 @@ window.GAMES = [
     platforms: ['PC', 'Switch', 'PS5'],
     genres: ['策略', '回合制', '历史'],
     rating: 9.3,
-    hours: 512.4,
+    hours: 106,
     isFavorite: true
   },
   {
@@ -246,7 +246,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['模拟', '驾驶', '休闲'],
     rating: 9.1,
-    hours: 178.5,
+    hours: 44,
   },
   {
     id: 'planet-coaster',
@@ -258,7 +258,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['模拟', '建造', '经营'],
     rating: 8.4,
-    hours: 69.7,
+    hours: 17.5,
   },
   {
     id: 'raft',
@@ -270,7 +270,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['独立', '生存', '合作'],
     rating: 8.6,
-    hours: 103.2,
+    hours: 27,
   },
   {
     id: 'the-forest',
@@ -282,7 +282,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5'],
     genres: ['独立', '生存', '恐怖'],
     rating: 8.5,
-    hours: 74.9,
+    hours: 20,
   },
   {
     id: 'phasmophobia',
@@ -294,7 +294,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['独立', '恐怖', '合作'],
     rating: 8.2,
-    hours: 92.4,
+    hours: 24,
   },
   {
     id: 'no-mans-sky',
@@ -306,7 +306,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
     genres: ['独立', '探索', '太空'],
     rating: 8.7,
-    hours: 187.6,
+    hours: 38,
     isFavorite: true
   },
   {
@@ -319,7 +319,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
     genres: ['动作', '合作', '解谜'],
     rating: 9.4,
-    hours: 46.3,
+    hours: 11.5,
   },
   {
     id: 'peak',
@@ -331,7 +331,7 @@ window.GAMES = [
     platforms: ['PC'],
     genres: ['独立', '合作', '受苦'],
     rating: 8.3,
-    hours: 29.8,
+    hours: 9.5,
   },
   {
     id: 'human-fall-flat',
@@ -343,7 +343,7 @@ window.GAMES = [
     platforms: ['PC', 'Switch', 'PS5'],
     genres: ['独立', '解谜', '搞笑'],
     rating: 8.8,
-    hours: 61.5,
+    hours: 7.5,
   },
   {
     id: 'stardew-valley',
@@ -355,7 +355,7 @@ window.GAMES = [
     platforms: ['PC', 'Switch', 'PS5'],
     genres: ['模拟', '经营', '休闲'],
     rating: 9.5,
-    hours: 268.1,
+    hours: 55,
   },
   {
     id: 'terraria',
@@ -367,7 +367,7 @@ window.GAMES = [
     platforms: ['PC', 'Switch', 'PS5'],
     genres: ['独立', '沙盒', '生存'],
     rating: 9.4,
-    hours: 295.7,
+    hours: 67,
   },
   {
     id: 'tlou1',
@@ -379,7 +379,7 @@ window.GAMES = [
     platforms: ['PC', 'PS5'],
     genres: ['动作', '生存', '剧情'],
     rating: 9.6,
-    hours: 84.2,
+    hours: 14,
     isFavorite: true
   },
   {
@@ -392,7 +392,7 @@ window.GAMES = [
     platforms: ['PS5'],
     genres: ['动作', '生存', '剧情'],
     rating: 8.9,
-    hours: 97.8,
+    hours: 16.5,
     isFavorite: true
   },
 ];
