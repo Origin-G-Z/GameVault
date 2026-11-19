@@ -40,14 +40,73 @@ function renderHeaderControls() {
   `;
 }
 
+// ================= 筛选按钮渲染 =================
+// 类型标签默认只展示占比最高的若干个，其余折叠进「更多」里
+const GENRE_VISIBLE_COUNT = 10;
+let genreExpanded = false;   // 类型筛选是否已展开
+
+// 统计每个标签出现的游戏数，按数量降序（同数量按名称排，保证顺序稳定）
+function sortTagsByCount(list, key) {
+  const counter = {};
+  GAMES.forEach(g => g[key].forEach(v => { counter[v] = (counter[v] || 0) + 1; }));
+  return list
+    .slice()
+    .sort((a, b) => (counter[b] || 0) - (counter[a] || 0) || a.localeCompare(b, 'zh'));
+}
+
 function renderFilterBtns(list, current, type) {
+  const isGenre = type === 'genre';
+  const label = isGenre ? '类型：' : '平台：';
+
+  // 类型按占比排序后再决定展示哪些
+  const sorted = sortTagsByCount(list, isGenre ? 'genres' : 'platforms');
+
+  let visible = sorted;
+  let hidden = [];
+  if (isGenre && !genreExpanded && sorted.length > GENRE_VISIBLE_COUNT) {
+    visible = sorted.slice(0, GENRE_VISIBLE_COUNT);
+    hidden = sorted.slice(GENRE_VISIBLE_COUNT);
+  }
+
+  const btn = (item) =>
+    `<button class="filter-btn ${current === item ? 'active' : ''}" data-type="${type}" data-val="${item}">${item}</button>`;
+
+  // 折叠状态下，若当前选中的是隐藏项，把它"提"到可见区末尾，
+  // 否则用户收起后看不到自己选了什么，容易困惑。
+  let pinnedActive = null;
+  if (isGenre && !genreExpanded && hidden.includes(current)) {
+    pinnedActive = current;
+    hidden = hidden.filter(i => i !== current);
+  }
+
+  // 「更多」按钮：展开时有收起，折叠时显示剩余数量
+  let moreBtn = '';
+  if (isGenre && sorted.length > GENRE_VISIBLE_COUNT) {
+    moreBtn = genreExpanded
+      ? `<button class="filter-more-btn expanded" id="genre-more-btn" aria-expanded="true">
+           <span>收起</span>
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>
+         </button>`
+      : `<button class="filter-more-btn" id="genre-more-btn" aria-expanded="false">
+           <span>更多 ${hidden.length}</span>
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+         </button>`;
+  }
+
   return `
-    <div class="filter-group">
-      <span class="filter-label">${type === 'platform' ? '平台：' : '类型：'}</span>
-      <button class="filter-btn ${current === '全部' ? 'active' : ''}" data-type="${type}" data-val="全部">全部</button>
-      ${list.map(item => `
-        <button class="filter-btn ${current === item ? 'active' : ''}" data-type="${type}" data-val="${item}">${item}</button>
-      `).join('')}
+    <div class="filter-group ${isGenre ? 'filter-group-genre' : ''}">
+      <span class="filter-label">${label}</span>
+      <div class="filter-chips">
+        <button class="filter-btn ${current === '全部' ? 'active' : ''}" data-type="${type}" data-val="全部">全部</button>
+        ${visible.map(btn).join('')}
+        ${pinnedActive ? btn(pinnedActive) : ''}
+        ${moreBtn}
+      </div>
+      ${hidden.length ? `
+        <div class="filter-chips filter-chips-more ${genreExpanded ? 'open' : ''}" id="genre-more-chips">
+          ${hidden.map(btn).join('')}
+        </div>
+      ` : ''}
     </div>
   `;
 }
@@ -198,18 +257,71 @@ function initLibrary() {
     });
   }
 
-  // 绑定筛选
-  appEl.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.currentTarget;
-      const type = target.dataset.type;
-      const val = target.dataset.val;
-      if (type === 'platform') activePlatform = val;
-      if (type === 'genre') activeGenre = val;
-      appEl.querySelectorAll(`.filter-btn[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
-      target.classList.add('active');
-      renderCards();
-    });
+  // 绑定筛选（用事件委托，覆盖「更多」展开后新出现的按钮）
+  appEl.addEventListener('click', (e) => {
+    // ① 点击「更多 / 收起」
+    const moreBtn = e.target.closest('.filter-more-btn');
+    if (moreBtn) {
+      genreExpanded = !genreExpanded;
+
+      if (genreExpanded) {
+        // 展开：只切类名，让 CSS 的 max-height 过渡自然展开（不重渲染，动画更顺滑）
+        moreBtn.classList.add('expanded');
+        moreBtn.setAttribute('aria-expanded', 'true');
+        const sp = moreBtn.querySelector('span');
+        if (sp) sp.textContent = '收起';
+        const chips = document.getElementById('genre-more-chips');
+        if (chips) chips.classList.add('open');
+      } else {
+        // 收起：先播放收起动画，动画结束后重新渲染类型区，
+        // 好让"当前选中的隐藏项"被提到可见区（否则用户看不到自己选了什么）
+        moreBtn.classList.remove('expanded');
+        moreBtn.setAttribute('aria-expanded', 'false');
+        const sp = moreBtn.querySelector('span');
+        if (sp) sp.textContent = '收起';
+        const chips = document.getElementById('genre-more-chips');
+        if (chips) chips.classList.remove('open');
+
+        setTimeout(function () {
+          // 仅重渲染类型这一组，保持平台组与卡片不动
+          const genreGroup = appEl.querySelector('.filter-group-genre');
+          if (!genreGroup) return;
+          const allPlatforms = [...new Set(GAMES.flatMap(g => g.platforms))];
+          const allGenres = [...new Set(GAMES.flatMap(g => g.genres))];
+          genreGroup.outerHTML = renderFilterBtns(allGenres, activeGenre, 'genre');
+        }, 400); // 与 CSS 收起时长 0.38s 对齐
+      }
+      return;
+    }
+
+    // ② 点击具体筛选按钮
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+
+    const type = btn.dataset.type;
+    const val = btn.dataset.val;
+    if (type === 'platform') activePlatform = val;
+    if (type === 'genre') {
+      activeGenre = val;
+      // 若选中的是折叠区里的标签，自动展开，让用户看到自己的选择
+      const inMore = btn.closest('#genre-more-chips');
+      if (inMore && !genreExpanded) {
+        genreExpanded = true;
+        const chips = document.getElementById('genre-more-chips');
+        if (chips) chips.classList.add('open');
+        const mb = document.getElementById('genre-more-btn');
+        if (mb) {
+          mb.classList.add('expanded');
+          mb.setAttribute('aria-expanded', 'true');
+          const sp = mb.querySelector('span');
+          if (sp) sp.textContent = '收起';
+        }
+      }
+    }
+
+    appEl.querySelectorAll(`.filter-btn[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
+    appEl.querySelectorAll(`.filter-btn[data-type="${type}"][data-val="${CSS.escape(val)}"]`).forEach(b => b.classList.add('active'));
+    renderCards();
   });
 
   // 绑定爱心收藏

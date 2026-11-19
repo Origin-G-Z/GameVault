@@ -227,17 +227,85 @@
 
 .filter-group {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 10px;
 }
 
+/* 标签文字与按钮第一行对齐 */
 .filter-label {
   color: var(--text);
   font-size: 14px;
   font-weight: 800;
   margin-right: 8px;
+  line-height: 32px;
+  flex-shrink: 0;
 }
+
+/* 按钮容器：负责换行，标签固定在最左侧 */
+.filter-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 折叠区：默认高度为 0，展开时平滑撑开 */
+.filter-chips-more {
+  flex-basis: 100%;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  transition:
+    max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.28s ease,
+    margin-top 0.3s ease;
+}
+
+.filter-chips-more.open {
+  max-height: 260px;   /* 足够容纳全部冷门标签 */
+  opacity: 1;
+  margin-top: 10px;
+}
+
+/* =====「更多 / 收起」按钮 ===== */
+.filter-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-more-btn svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.filter-more-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.07);
+  border-style: solid;
+}
+
+.filter-more-btn.expanded {
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.filter-more-btn.expanded svg { transform: rotate(180deg); }
 
 .filter-btn {
   background: transparent;
