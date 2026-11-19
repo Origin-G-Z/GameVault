@@ -457,9 +457,14 @@
 /* ========================================= */
 /* ================= 首屏视觉区 ================= */
 /* ========================================= */
+/* 顶部导航栏高度（含 1px 下边框），首屏用它精确扣减，避免出现多余滚动 */
+:root { --header-h: 65px; }
+
 #hero-section {
   position: relative;
-  height: 100vh;
+  /* 首屏占满"视口减去导航栏"的剩余高度，保证刚好看完首屏不见列表 */
+  height: calc(100vh - var(--header-h));
+  min-height: 520px;   /* 矮屏兜底，防止文字被压扁 */
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -510,12 +515,12 @@
 /* ===== 1. 优化后的“下滑探索”按钮 ===== */
 .scroll-hint {
   position: absolute;
-  bottom: 0px;
-  /* 👈 把这里的数值改小，比如 15px 或 20px，让它贴着底部 */
+  bottom: 40px;
+  /* 与底部留出呼吸距离，避免压在地平线上影响对比度 */
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50px;
   padding: 10px 24px;
   color: #fff;

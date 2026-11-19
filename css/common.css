@@ -23,6 +23,14 @@
   box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.1), 0 2px 6px -2px rgba(15, 23, 42, 0.05);
 }
 
+/* 左侧：品牌 + GitHub 图标 */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
 .brand {
   font-weight: 800; /* 加粗一点 */
   font-size: 18px;
@@ -33,6 +41,49 @@
 }
 
 .brand:hover { color: var(--accent); }
+
+/* ===== GitHub 图标按钮 ===== */
+.header-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  text-decoration: none !important;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-github svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.header-github:hover {
+  color: #fff;
+  background: #24292f;   /* GitHub 官方黑 */
+  border-color: #24292f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(36, 41, 47, 0.25);
+}
+
+/* 悬浮时图标轻微旋转，增加趣味 */
+.header-github:hover svg { transform: rotate(-12deg) scale(1.1); }
+
+.header-github:active { transform: translateY(0); }
+
+/* 窄屏隐藏文字标签，只留图标 */
+@media (max-width: 640px) {
+  .github-label { display: none; }
+  .header-github { padding: 6px; border-radius: 50%; }
+}
 
 /* ===== 顶部迷你搜索框 ===== */
 .header-search {
