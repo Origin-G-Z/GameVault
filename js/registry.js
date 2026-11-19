@@ -22,6 +22,8 @@ window.GAMES = [
     cover: './image/cs2.jpg',
     platforms: ['PC'],
     genres: ['射击', '电竞', '硬核'],
+    rating: 9.4,
+    hours: 1286,
     isFavorite: true
   },
   {
@@ -33,6 +35,8 @@ window.GAMES = [
     cover: './image/pragmata.jpg',
     platforms: ['PC', 'PS5', 'Xbox', 'NS2'],
     genres: ['动作', '科幻', '解谜'],
+    rating: 8.8,
+    hours: 32.5,
     isFavorite: true
   },
   {
@@ -43,7 +47,9 @@ window.GAMES = [
     desc: '50v50大型硬核战术射击游戏，极其强调团队沟通、指挥官调度与真实战场体验。',
     cover: './image/squad.jpg',
     platforms: ['PC'],
-    genres: ['射击', '战术', '硬核']
+    genres: ['射击', '战术', '硬核'],
+    rating: 8.6,
+    hours: 146.2,
   },
   {
     id: 'cod',
@@ -53,7 +59,9 @@ window.GAMES = [
     desc: '经典第一人称射击系列，拥有好莱坞级别的剧情战役和爽快的多人对战。',
     cover: './image/cod.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
-    genres: ['射击', '动作', '多人']
+    genres: ['射击', '动作', '多人'],
+    rating: 8.2,
+    hours: 88.4,
   },
   {
     id: 'ready-or-not',
@@ -63,7 +71,9 @@ window.GAMES = [
     desc: '硬核拟真的SWAT特警战术射击游戏，面对极度危险的嫌犯，需要严谨的破门与突击战术。',
     cover: './image/ready-or-not.jpg',
     platforms: ['PC'],
-    genres: ['射击', '战术', '硬核']
+    genres: ['射击', '战术', '硬核'],
+    rating: 8.9,
+    hours: 64.8,
   },
   {
     id: 'battlefield5',
@@ -73,7 +83,9 @@ window.GAMES = [
     desc: '二战题材的大战场射击游戏，拥有极强的破坏系统和载具作战体验。',
     cover: './image/battlefield5.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
-    genres: ['射击', '动作', '大战场']
+    genres: ['射击', '动作', '大战场'],
+    rating: 7.6,
+    hours: 72.1,
   },
   {
     id: 'titanfall2',
@@ -83,7 +95,9 @@ window.GAMES = [
     desc: '拥有业界顶尖的跑酷射击手感和机甲战斗，单人剧情战役更是神作。',
     cover: './image/titanfall2.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
-    genres: ['射击', '动作', '科幻']
+    genres: ['射击', '动作', '科幻'],
+    rating: 9.6,
+    hours: 38.7,
   },
   {
     id: 'apex',
@@ -93,7 +107,9 @@ window.GAMES = [
     desc: '基于泰坦陨落世界观的战术竞技游戏，英雄技能与极致的滑铲射击手感结合。',
     cover: './image/apex.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
-    genres: ['射击', '吃鸡', '科幻']
+    genres: ['射击', '吃鸡', '科幻'],
+    rating: 8.3,
+    hours: 455.6,
   },
   {
     id: 'l4d2',
@@ -103,7 +119,9 @@ window.GAMES = [
     desc: '经典的丧尸合作射击游戏，四人小队在末日中杀出一条血路。',
     cover: './image/l4d2.jpg',
     platforms: ['PC'],
-    genres: ['射击', '生存', '合作']
+    genres: ['射击', '生存', '合作'],
+    rating: 9.5,
+    hours: 320.4,
   },
   {
     id: 'stellar-blade',
@@ -114,6 +132,8 @@ window.GAMES = [
     cover: './image/stellar-blade.jpg',
     platforms: ['PS5', 'PC'],
     genres: ['动作', '冒险', '科幻'],
+    rating: 8.7,
+    hours: 58.3,
     isFavorite: true
   },
   {
@@ -125,6 +145,8 @@ window.GAMES = [
     cover: './image/forza-horizon5.jpg',
     platforms: ['PC', 'Xbox'],
     genres: ['竞速', '开放世界', '体育'],
+    rating: 9.2,
+    hours: 214.9,
     isFavorite: true
   },
   {
@@ -136,6 +158,8 @@ window.GAMES = [
     cover: './image/forza-motorsport.jpg',
     platforms: ['PC', 'Xbox'],
     genres: ['竞速', '拟真', '体育'],
+    rating: 7.9,
+    hours: 96.5,
     isFavorite: true
   },
   {
@@ -146,7 +170,9 @@ window.GAMES = [
     desc: '官方授权的F1方程式赛车游戏，体验极速狂飙与车队策略。',
     cover: './image/f1-24.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
-    genres: ['竞速', '体育', '拟真']
+    genres: ['竞速', '体育', '拟真'],
+    rating: 8.1,
+    hours: 41.2,
   },
   {
     id: 'fc26',
@@ -156,7 +182,9 @@ window.GAMES = [
     desc: '站在一个微妙的位置上：EA把“真实足球”做成了一个仅限离线的橱窗，而在线玩家仍被留在了那个更快、更滑的旧世界里。',
     cover: './image/fc26.jpg',
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
-    genres: ['体育', '足球', '竞技']
+    genres: ['体育', '足球', '竞技'],
+    rating: 7.4,
+    hours: 128.7,
   },
   {
     id: 'msfs',
@@ -166,7 +194,9 @@ window.GAMES = [
     desc: '使用真实卫星地图打造的飞行模拟器，可以在家环游世界。',
     cover: './image/msfs.jpg',
     platforms: ['PC', 'Xbox'],
-    genres: ['模拟', '飞行', '硬核']
+    genres: ['模拟', '飞行', '硬核'],
+    rating: 8.5,
+    hours: 53.6,
   },
   {
     id: 'cities-skylines2',
@@ -177,6 +207,8 @@ window.GAMES = [
     cover: './image/city-sky-line2.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
     genres: ['模拟', '策略', '城建'],
+    rating: 8.0,
+    hours: 87.3,
     isFavorite: true
   },
   {
@@ -187,7 +219,9 @@ window.GAMES = [
     desc: '经典城市建造游戏，极其丰富的内容与强大的创意工坊模组支持。',
     cover: './image/cities-skylines.jpg',
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
-    genres: ['模拟', '策略', '城建']
+    genres: ['模拟', '策略', '城建'],
+    rating: 9.0,
+    hours: 236.8,
   },
   {
     id: 'civilization6',
@@ -198,6 +232,8 @@ window.GAMES = [
     cover: './image/civilization6.jpg',
     platforms: ['PC', 'Switch', 'PS5'],
     genres: ['策略', '回合制', '历史'],
+    rating: 9.3,
+    hours: 512.4,
     isFavorite: true
   },
   {
@@ -208,7 +244,9 @@ window.GAMES = [
     desc: '开着大卡车在欧洲公路上送货的模拟游戏，极致休闲放松。',
     cover: './image/euro-truck.jpg',
     platforms: ['PC'],
-    genres: ['模拟', '驾驶', '休闲']
+    genres: ['模拟', '驾驶', '休闲'],
+    rating: 9.1,
+    hours: 178.5,
   },
   {
     id: 'planet-coaster',
@@ -218,7 +256,9 @@ window.GAMES = [
     desc: '极具深度的游乐园建造模拟游戏，发挥创意打造你的梦幻乐园。',
     cover: './image/planet-coaster.jpg',
     platforms: ['PC', 'PS5', 'Xbox'],
-    genres: ['模拟', '建造', '经营']
+    genres: ['模拟', '建造', '经营'],
+    rating: 8.4,
+    hours: 69.7,
   },
   {
     id: 'raft',
@@ -228,7 +268,9 @@ window.GAMES = [
     desc: '在大海上漂流收集垃圾扩建木筏的生存游戏，支持多人合作。',
     cover: './image/raft.jpg',
     platforms: ['PC'],
-    genres: ['独立', '生存', '合作']
+    genres: ['独立', '生存', '合作'],
+    rating: 8.6,
+    hours: 103.2,
   },
   {
     id: 'the-forest',
@@ -238,7 +280,9 @@ window.GAMES = [
     desc: '荒岛生存恐怖游戏，不仅要填饱肚子，还要面对地下洞穴里的变异野人。',
     cover: './image/the-forest.jpg',
     platforms: ['PC', 'PS5'],
-    genres: ['独立', '生存', '恐怖']
+    genres: ['独立', '生存', '恐怖'],
+    rating: 8.5,
+    hours: 74.9,
   },
   {
     id: 'phasmophobia',
@@ -248,7 +292,9 @@ window.GAMES = [
     desc: '四人合作抓鬼游戏，依靠各种设备收集证据，极具沉浸感的恐怖体验。',
     cover: './image/phasmophobia.jpg',
     platforms: ['PC'],
-    genres: ['独立', '恐怖', '合作']
+    genres: ['独立', '恐怖', '合作'],
+    rating: 8.2,
+    hours: 92.4,
   },
   {
     id: 'no-mans-sky',
@@ -259,6 +305,8 @@ window.GAMES = [
     cover: './image/no-mans-sky.jpg',
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
     genres: ['独立', '探索', '太空'],
+    rating: 8.7,
+    hours: 187.6,
     isFavorite: true
   },
   {
@@ -269,7 +317,9 @@ window.GAMES = [
     desc: '必须双人合作的冒险解谜游戏，创意拉满，关卡设计极其出色。',
     cover: './image/it-takes-two.jpg',
     platforms: ['PC', 'PS5', 'Xbox', 'Switch'],
-    genres: ['动作', '合作', '解谜']
+    genres: ['动作', '合作', '解谜'],
+    rating: 9.4,
+    hours: 46.3,
   },
   {
     id: 'peak',
@@ -279,7 +329,9 @@ window.GAMES = [
     desc: '需要团队紧密配合的攀岩登山游戏，一不小心就会跌落悬崖。',
     cover: './image/peak.jpg',
     platforms: ['PC'],
-    genres: ['独立', '合作', '受苦']
+    genres: ['独立', '合作', '受苦'],
+    rating: 8.3,
+    hours: 29.8,
   },
   {
     id: 'human-fall-flat',
@@ -289,7 +341,9 @@ window.GAMES = [
     desc: '基于物理引擎的解谜游戏，软绵绵的小人带来爆笑的联机体验。',
     cover: './image/human-fall-flat.jpg',
     platforms: ['PC', 'Switch', 'PS5'],
-    genres: ['独立', '解谜', '搞笑']
+    genres: ['独立', '解谜', '搞笑'],
+    rating: 8.8,
+    hours: 61.5,
   },
   {
     id: 'stardew-valley',
@@ -299,7 +353,9 @@ window.GAMES = [
     desc: '像素风农场经营游戏，种田、钓鱼、挖矿、和镇民交朋友。',
     cover: './image/stardew-valley.jpg',
     platforms: ['PC', 'Switch', 'PS5'],
-    genres: ['模拟', '经营', '休闲']
+    genres: ['模拟', '经营', '休闲'],
+    rating: 9.5,
+    hours: 268.1,
   },
   {
     id: 'terraria',
@@ -309,7 +365,9 @@ window.GAMES = [
     desc: '2D像素沙盒生存神作，极高的自由度，建造、探索、打Boss。',
     cover: './image/terraria.jpg',
     platforms: ['PC', 'Switch', 'PS5'],
-    genres: ['独立', '沙盒', '生存']
+    genres: ['独立', '沙盒', '生存'],
+    rating: 9.4,
+    hours: 295.7,
   },
   {
     id: 'tlou1',
@@ -320,6 +378,8 @@ window.GAMES = [
     cover: './image/The_last_of_us_1.jpg',
     platforms: ['PC', 'PS5'],
     genres: ['动作', '生存', '剧情'],
+    rating: 9.6,
+    hours: 84.2,
     isFavorite: true
   },
   {
@@ -331,6 +391,8 @@ window.GAMES = [
     cover: './image/The_last_of_us_2.jpg',
     platforms: ['PS5'],
     genres: ['动作', '生存', '剧情'],
+    rating: 8.9,
+    hours: 97.8,
     isFavorite: true
   },
 ];

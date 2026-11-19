@@ -15,8 +15,10 @@ let activePlatform = '全部';
 let activeGenre = '全部';
 let searchQuery = '';
 
-// 计算总时长（固定为 2583.7）
-const totalHours = "2583.7";
+// 累计游玩时长：由 registry.js 中每款游戏的 hours 字段实时求和，无需手动维护
+const totalHours = GAMES
+  .reduce((sum, g) => sum + (Number(g.hours) || 0), 0)
+  .toFixed(1);
 
 // ================= 渲染逻辑 =================
 function renderHeaderControls() {
@@ -70,8 +72,9 @@ function renderCards() {
 
   grid.innerHTML = filteredGames.map((g, index) => {
     const isFav = favorites.includes(g.id);
-    const rating = g.rating || (8 + Math.random()).toFixed(1);
-    const displayHours = g.hours || Math.floor(Math.random() * 50 + 10);
+    // 评分与时长均为 registry.js 中的固定真实数据；缺失时显示占位符，不再使用随机数
+    const rating = (g.rating !== undefined && g.rating !== null) ? Number(g.rating).toFixed(1) : '—';
+    const displayHours = (g.hours !== undefined && g.hours !== null) ? g.hours : '—';
 
     // 处理路径问题
     let displayCover = g.cover;

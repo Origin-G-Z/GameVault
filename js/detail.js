@@ -71,7 +71,32 @@ function init() {
 
   // 更新标题并置顶
   document.title = `${gameData.title} · GameVault`;
+  updateSocialMeta(gameData, meta);
   window.scrollTo(0, 0);
+}
+
+// 根据当前游戏动态更新 SEO 描述与社交分享卡片信息
+function updateSocialMeta(gameData, meta) {
+  const title = `${gameData.title} · GameVault`;
+  const desc = gameData.tagline || meta.desc || '';
+
+  const setMeta = (selector, attr, value) => {
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+  };
+
+  // 基础 SEO
+  setMeta('meta[name="description"]', 'content', desc);
+  // OG 标签
+  setMeta('meta[property="og:title"]', 'content', title);
+  setMeta('meta[property="og:description"]', 'content', desc);
+  // 封面图在详情页需要补成 ../ 前缀（meta.cover 形如 ./image/xxx.jpg）
+  const cover = meta.cover ? '.' + meta.cover : '../image/hero-bg.jpg';
+  setMeta('meta[property="og:image"]', 'content', cover);
+  // Twitter 卡片
+  setMeta('meta[name="twitter:title"]', 'content', title);
+  setMeta('meta[name="twitter:description"]', 'content', desc);
+  setMeta('meta[name="twitter:image"]', 'content', cover);
 }
 
 // ================= 返回顶部交互逻辑 =================

@@ -468,22 +468,19 @@
   text-align: center;
   overflow: hidden;
 
-  /* 🎨 更换背景图：这里我放了 3 张不同风格的游戏感高清图，你可以任选其一 */
-  /* 风格1：暗黑史诗感 */
-  /* background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop'); */
+  /* 首屏背景图：已改为本地图片，断网也能正常显示 */
+  /* 图片存放于 image/hero-bg.jpg，CSS 在 css/ 目录下，因此用 ../ 回到根目录 */
+  background-image: url('../image/hero-bg.jpg');
 
-  /* 风格2：赛博霓虹感（推荐） */
-  background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop');
-
-  /* 风格3：如果用了本地图片，取消下面这行的注释并修改路径 */
-  /* background-image: url('../image/你的图片名.jpg'); */
+  /* 如果想换回网络图，可以注释掉上面一行，取消下面这行的注释 */
+  /* background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop'); */
 
   background-size: cover;
   background-position: center;
   /* ⚠️ 注意：移除了 background-attachment: fixed，防止滚动卡顿 */
 
-  /* 用纯 CSS 加一个深色渐变遮罩，保证文字清晰 */
-  box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, 0.6);
+  /* 遮罩已压暗到图片本身里了，这里只留一层极轻的叠加，保证白字清晰 */
+  box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, 0.18);
 }
 
 /* 首屏内容的视差容器 */

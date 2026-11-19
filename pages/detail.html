@@ -3,17 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>游戏鉴赏详情</title>
+
+  <title>游戏鉴赏详情 | GameVault</title>
+
+  <!-- ================= SEO 基础信息 ================= -->
+  <meta name="description" content="GameVault 游戏鉴赏库 · 深度评测长文详情页，包含基础信息速览、核心玩法拆解与口碑分析。">
+  <meta name="keywords" content="GameVault,游戏鉴赏,游戏评测,深度长文,游戏库">
+  <meta name="author" content="高梓源">
+
+  <!-- ================= 社交分享卡片（OG / Twitter） ================= -->
+  <!-- 具体的游戏标题与封面图由 detail.js 在运行时动态注入 -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="GameVault">
+  <meta property="og:title" content="游戏鉴赏详情 · GameVault">
+  <meta property="og:description" content="GameVault 游戏鉴赏库 · 深度评测长文详情页。">
+  <meta property="og:image" content="../image/hero-bg.jpg">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="游戏鉴赏详情 · GameVault">
+  <meta name="twitter:description" content="GameVault 游戏鉴赏库 · 深度评测长文详情页。">
+  <meta name="twitter:image" content="../image/hero-bg.jpg">
+
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/detail.css">
 </head>
-<body>
+<body id="top">
   <header class="site-header">
     <a class="brand" href="../index.html">🎮 GameVault</a>
   </header>
   
   <main id="app"></main>
+
+  <!-- ================= 页面底部版权页脚 ================= -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">🎮 GameVault</span>
+        <p class="footer-slogan">记录我的游玩足迹，分享深度体验。</p>
+      </div>
+
+      <nav class="footer-links">
+        <a href="#top" class="footer-link" id="footer-top-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
+          返回顶部
+        </a>
+        <a href="../index.html" class="footer-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11l9-8 9 8M5 10v10h14V10" />
+          </svg>
+          回到首页
+        </a>
+      </nav>
+
+      <p class="footer-tech">
+        技术栈：<span>HTML5</span><span>CSS3</span><span>原生 JavaScript</span>
+      </p>
+
+      <p class="footer-copy">© 2026 GameVault · 保留所有权利</p>
+    </div>
+  </footer>
 
   <!-- 返回顶部按钮 -->
   <button id="back-to-top" class="back-to-top" title="返回顶部">
