@@ -269,6 +269,15 @@ function initScrollEffects() {
   let ticking = false;
   let lastScrollY = window.scrollY; // 记录上一次的滚动位置
 
+  // ===== 筛选框显隐的防抖与滞回状态 =====
+  const HIDE_AT = 120;      // 卡片顶边进入该范围内，才可能收起
+  const SHOW_AT = 180;      // 卡片顶边超过该值才恢复显示（与 HIDE_AT 形成滞回，避免临界点抖动）
+  const DIR_DELTA = 8;      // 滚动方向判定的最小位移（px），过滤惯性滚动/回弹的微小抖动
+  const DIR_DELAY = 60;     // 方向反转需持续的时间（ms），避免手一抖就弹回
+  let direction = 0;        // 1 = 向下，-1 = 向上，0 = 未定
+  let pendingDir = 0;       // 待确认的方向
+  let pendingAt = 0;        // 待确认方向的起始时间
+
   window.addEventListener('scroll', () => {
     if (!ticking) {
       window.requestAnimationFrame(() => {
@@ -283,19 +292,38 @@ function initScrollEffects() {
           exploreBtn.classList.remove('visible');
         }
 
-        // 2. 核心修改：控制筛选框的上下隐藏
+        // 2. 筛选框的显隐（向上立即恢复，收起才做防抖）
         if (filterWrapper && gameGrid) {
-          // 判断滚动方向
-          const isScrollingDown = scrollY > lastScrollY;
-
-          // 获取游戏网格距离视口顶部的距离
+          const delta = scrollY - lastScrollY;
+          const now = performance.now();
           const gridTopDistance = gameGrid.getBoundingClientRect().top;
 
-          // 逻辑：如果是向下滑，且第一排卡片已经滑到了距离屏幕顶部 120px 以内（快要钻到导航栏下面了）
-          // 这时才让筛选框隐藏。否则一直保持显示。
-          if (isScrollingDown && gridTopDistance < 120) {
-            filterWrapper.classList.add('hide');
-          } else {
+          // 向上滚动：立即显示，不做任何延迟（用户最需要"往上滑就出来"的即时反馈）
+          if (delta <= -DIR_DELTA) {
+            direction = -1;
+            pendingDir = 0;
+            filterWrapper.classList.remove('hide');
+          }
+          // 向下滚动：需要累计位移并持续一小段时间，才认为"真的在往下浏览"
+          else if (delta >= DIR_DELTA) {
+            if (direction !== 1) {
+              if (pendingDir !== 1) {
+                pendingDir = 1;
+                pendingAt = now;
+              } else if (now - pendingAt >= DIR_DELAY) {
+                direction = 1;
+                pendingDir = 0;
+              }
+            }
+            // 确认向下且卡片快要贴上导航栏 -> 收起
+            if (direction === 1 && gridTopDistance < HIDE_AT) {
+              filterWrapper.classList.add('hide');
+            }
+          }
+          // 没有明显滚动（惯性/回弹等微小位移）：保持现状不动
+
+          // 滞回：一旦回到临界点之上方，无条件显示
+          if (gridTopDistance > SHOW_AT) {
             filterWrapper.classList.remove('hide');
           }
         }
