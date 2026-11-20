@@ -103,6 +103,11 @@ function recordRecentView(id) {
   }
 }
 
+// 详情页图片路径：registry 里是 ./image/xxx.jpg，详情页需要 ../image/xxx.jpg
+function coverSrc(cover) {
+  return '..' + String(cover).replace(/^\./, '');
+}
+
 // ================= 上一款 / 下一款 =================
 function renderDetailNav(id) {
   var idx = GAMES.findIndex(function (g) { return g.id === id; });
@@ -113,15 +118,21 @@ function renderDetailNav(id) {
 
   var prevHtml = prev
     ? `<a class="dv-link prev" href="detail.html?id=${prev.id}">
-         <span class="dv-dir">← 上一款</span>
-         <span class="dv-name">${escapeHtml(prev.title)}</span>
+         <img class="dv-cover" src="${coverSrc(prev.cover)}" alt="${escapeHtml(prev.title)}" loading="lazy">
+         <span class="dv-text">
+           <span class="dv-dir">← 上一款</span>
+           <span class="dv-name">${escapeHtml(prev.title)}</span>
+         </span>
        </a>`
     : '<span class="dv-link is-empty"></span>';
 
   var nextHtml = next
     ? `<a class="dv-link next" href="detail.html?id=${next.id}">
-         <span class="dv-dir">下一款 →</span>
-         <span class="dv-name">${escapeHtml(next.title)}</span>
+         <img class="dv-cover" src="${coverSrc(next.cover)}" alt="${escapeHtml(next.title)}" loading="lazy">
+         <span class="dv-text">
+           <span class="dv-dir">下一款 →</span>
+           <span class="dv-name">${escapeHtml(next.title)}</span>
+         </span>
        </a>`
     : '<span class="dv-link is-empty"></span>';
 
@@ -149,7 +160,7 @@ function renderRelated(id) {
   var items = related.map(function (g) {
     return `
       <a class="related-card" href="detail.html?id=${g.id}">
-        <img src="..${g.cover.replace(/^\./, '')}" alt="${escapeHtml(g.title)}" loading="lazy">
+        <img src="${coverSrc(g.cover)}" alt="${escapeHtml(g.title)}" loading="lazy">
         <div class="related-info">
           <span class="related-name">${escapeHtml(g.title)}</span>
           <span class="related-meta">★ ${Number(g.rating).toFixed(1)} · ${g.hours} 小时</span>

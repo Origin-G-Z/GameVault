@@ -475,6 +475,32 @@
   color: var(--muted);
 }
 
+/* ===== 版本徽章 ===== */
+.footer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 5px 14px;
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.07);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.footer-badge .badge-ver {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.footer-badge .badge-sep {
+  color: var(--line);
+  font-weight: 400;
+}
+
 @media (max-width: 768px) {
   .site-footer { padding: 36px 20px 28px; }
   .footer-inner { flex-direction: column; gap: 24px; }

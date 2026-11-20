@@ -340,10 +340,11 @@ tbody tr:nth-child(even) { background: #fafafa; }
 
 .dv-link {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 190px;
-  padding: 12px 18px;
+  align-items: center;
+  gap: 12px;
+  min-width: 210px;
+  max-width: 300px;
+  padding: 10px 16px 10px 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
@@ -352,22 +353,47 @@ tbody tr:nth-child(even) { background: #fafafa; }
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 下一款左右镜像：封面在右，文字右对齐 */
 .dv-link.next {
-  align-items: flex-end;
+  flex-direction: row-reverse;
+  padding: 10px 10px 10px 16px;
   margin-left: auto;
+  text-align: right;
 }
 
 .dv-link.is-empty {
   border: none;
   background: transparent;
   min-width: 0;
+  max-width: none;
   padding: 0;
+}
+
+/* 封面缩略图 */
+.dv-cover {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--panel-2);
+}
+
+.dv-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 }
 
 a.dv-link:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
   box-shadow: 0 10px 24px -12px rgba(var(--accent-rgb), 0.45);
+}
+
+a.dv-link:hover .dv-cover {
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.35);
 }
 
 .dv-dir {
@@ -380,6 +406,9 @@ a.dv-link:hover {
 .dv-name {
   font-size: 15px;
   font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===== 12. 同类推荐 ===== */
@@ -455,5 +484,14 @@ a.dv-link:hover {
 
 @media (max-width: 768px) {
   .detail-nav { flex-direction: column; margin-top: 36px; }
-  .dv-link, .dv-link.next { align-items: flex-start; margin-left: 0; min-width: 0; }
+  /* 移动端统一为封面在左、文字在左对齐，避免镜像排版在小屏上显得别扭 */
+  .dv-link,
+  .dv-link.next {
+    min-width: 0;
+    max-width: none;
+    margin-left: 0;
+    flex-direction: row;
+    text-align: left;
+    padding: 10px 16px 10px 10px;
+  }
 }
