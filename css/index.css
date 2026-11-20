@@ -1,78 +1,92 @@
 /* css/index.css */
 
-/* ===== 全站氛围极光（参考 D 方案的流动光斑，垫在内容之下） ===== */
-.page-ambient {
-  position: fixed;
+/* 说明：全站氛围极光（.page-ambient / .amb-blob）样式已移至
+   css/common.css，因为首页与详情页都需要，属于公共组件。 */
+
+/* ===== 游戏库区域光效：贴着内容走的光斑，让库区也有"光效飘逸" ===== */
+/* 这里刻意不用 filter: blur()——首页已经有 3 个大模糊层，
+   再多叠加会明显掉帧。径向渐变本身边缘就是柔的，性能开销低得多。 */
+.library-glow {
+  position: absolute;
   inset: 0;
-  z-index: -1;              /* 位于内容之下、页面底色之上 */
   overflow: hidden;
   pointer-events: none;
-  /* 独立合成层，避免滚动时整层重绘 */
-  contain: strict;
+  z-index: 0;
 }
 
-.amb-blob {
+.library-glow .lg {
   position: absolute;
   border-radius: 50%;
-  /* 大半径模糊 + 低不透明度，形成柔和的色彩晕染 */
-  filter: blur(90px);
-  opacity: 0.55;
   will-change: transform;
+  /* 渐变到 60% 处完全透明，避免出现可见的圆边 */
+  background: radial-gradient(circle at 50% 50%,
+    rgba(var(--accent-rgb), 0.30) 0%,
+    rgba(var(--accent-rgb), 0.12) 42%,
+    transparent 62%);
 }
 
-.amb-1 {
+.lg-1 {
+  width: 54vw;
+  height: 54vw;
+  left: -16vw;
+  top: 1%;
+  animation: lgDrift1 38s ease-in-out infinite alternate;
+}
+
+.lg-2 {
   width: 46vw;
   height: 46vw;
-  left: -12vw;
-  top: -10vw;
-  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), 0.55), transparent 64%);
-  animation: ambDrift1 34s ease-in-out infinite alternate;
+  right: -14vw;
+  top: 34%;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(var(--accent-aux-rgb), 0.26) 0%,
+    rgba(var(--accent-aux-rgb), 0.10) 44%,
+    transparent 64%);
+  animation: lgDrift2 46s ease-in-out infinite alternate;
 }
 
-.amb-2 {
-  width: 40vw;
-  height: 40vw;
-  right: -10vw;
-  top: 18vh;
-  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-aux-rgb), 0.45), transparent 64%);
-  animation: ambDrift2 42s ease-in-out infinite alternate;
+.lg-3 {
+  width: 50vw;
+  height: 50vw;
+  left: 16vw;
+  bottom: 2%;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(var(--accent-rgb), 0.22) 0%,
+    rgba(var(--accent-rgb), 0.08) 46%,
+    transparent 66%);
+  animation: lgDrift3 54s ease-in-out infinite alternate;
 }
 
-.amb-3 {
-  width: 44vw;
-  height: 44vw;
-  left: 30vw;
-  bottom: -18vw;
-  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), 0.32), transparent 66%);
-  animation: ambDrift3 50s ease-in-out infinite alternate;
-}
-
-@keyframes ambDrift1 {
+@keyframes lgDrift1 {
   from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(6vw, 5vh, 0) scale(1.15); }
+  to   { transform: translate3d(7vw, 8vh, 0) scale(1.14); }
 }
-@keyframes ambDrift2 {
-  from { transform: translate3d(0, 0, 0) scale(1.08); }
-  to   { transform: translate3d(-7vw, 6vh, 0) scale(0.94); }
+@keyframes lgDrift2 {
+  from { transform: translate3d(0, 0, 0) scale(1.06); }
+  to   { transform: translate3d(-8vw, -7vh, 0) scale(0.92); }
 }
-@keyframes ambDrift3 {
+@keyframes lgDrift3 {
   from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(-9vw, -5vh, 0) scale(1.18); }
+  to   { transform: translate3d(-7vw, 6vh, 0) scale(1.16); }
 }
 
-/* 系统要求减少动效时，停止漂移，仅保留静态色彩晕染 */
 @media (prefers-reduced-motion: reduce) {
-  .amb-blob { animation: none; }
+  .library-glow .lg { animation: none; }
 }
 
-/* 窄屏收敛一点，避免色彩过重压住内容 */
 @media (max-width: 768px) {
-  .amb-blob { filter: blur(64px); opacity: 0.42; }
+  .library-glow .lg { opacity: 0.8; }
 }
 
 /* ===== 顶部平滑氛围光晕（直接打在 #app 上层） ===== */
+/* 内容区作为光效的定位参照，卡片层压在光斑之上 */
+#content-section {
+  position: relative;
+}
+
 #app {
   position: relative;
+  z-index: 1;   /* 保证卡片 / 筛选面板在 .library-glow 之上 */
 }
 
 #app::before {

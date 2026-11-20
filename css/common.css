@@ -483,3 +483,84 @@
   .footer-links, .footer-tech { justify-content: flex-start; }
   .footer-link { padding: 7px 16px; font-size: 13px; }
 }
+
+/* ========================================= */
+/* ============ 全站氛围极光（公共） ============ */
+/* ========================================= */
+/* 首页与详情页共用的固定光斑层（参考首屏 D 方案的流动极光）。
+   垫在内容之下、页面底色之上，滚动时保持不动，形成环境光晕。 */
+.page-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* 独立合成层，避免滚动时整层重绘 */
+  contain: strict;
+}
+
+.amb-blob {
+  position: absolute;
+  border-radius: 50%;
+  /* 大半径模糊 + 低不透明度，形成柔和的色彩晕染 */
+  filter: blur(90px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.amb-1 {
+  width: 46vw;
+  height: 46vw;
+  left: -12vw;
+  top: -10vw;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), 0.55), transparent 64%);
+  animation: ambDrift1 34s ease-in-out infinite alternate;
+}
+
+.amb-2 {
+  width: 40vw;
+  height: 40vw;
+  right: -10vw;
+  top: 18vh;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-aux-rgb), 0.45), transparent 64%);
+  animation: ambDrift2 42s ease-in-out infinite alternate;
+}
+
+.amb-3 {
+  width: 44vw;
+  height: 44vw;
+  left: 30vw;
+  bottom: -18vw;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), 0.32), transparent 66%);
+  animation: ambDrift3 50s ease-in-out infinite alternate;
+}
+
+@keyframes ambDrift1 {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(6vw, 5vh, 0) scale(1.15); }
+}
+@keyframes ambDrift2 {
+  from { transform: translate3d(0, 0, 0) scale(1.08); }
+  to   { transform: translate3d(-7vw, 6vh, 0) scale(0.94); }
+}
+@keyframes ambDrift3 {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-9vw, -5vh, 0) scale(1.18); }
+}
+
+/* 详情页是长文阅读场景，光效整体调柔，避免干扰阅读 */
+.page-ambient--calm .amb-blob {
+  opacity: 0.34;
+  filter: blur(100px);
+}
+
+/* 系统要求减少动效时，停止漂移，仅保留静态色彩晕染 */
+@media (prefers-reduced-motion: reduce) {
+  .amb-blob { animation: none; }
+}
+
+/* 窄屏收敛一点，避免色彩过重压住内容 */
+@media (max-width: 768px) {
+  .amb-blob { filter: blur(64px); opacity: 0.42; }
+  .page-ambient--calm .amb-blob { opacity: 0.28; }
+}
