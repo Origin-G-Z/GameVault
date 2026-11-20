@@ -133,14 +133,29 @@ const totalHours = Number.isInteger(totalHoursRaw)
   : totalHoursRaw.toFixed(1);
 
 // ================= 渲染逻辑 =================
+// 排序选项：自定义下拉用，顺序即菜单顺序
+const SORT_OPTIONS = [
+  { v: 'default', t: '默认排序' },
+  { v: 'hours', t: '按时长' },
+  { v: 'rating', t: '按评分' },
+  { v: 'title', t: '按名称' }
+];
+
+function getSortLabel(value) {
+  const hit = SORT_OPTIONS.filter(function (o) { return o.v === value; })[0];
+  return hit ? hit.t : SORT_OPTIONS[0].t;
+}
+
 function renderHeaderControls() {
-  const sortOptions = [
-    { v: 'default', t: '默认排序' },
-    { v: 'hours', t: '按时长' },
-    { v: 'rating', t: '按评分' },
-    { v: 'title', t: '按名称' }
-  ].map(function (o) {
-    return `<option value="${o.v}"${activeSort === o.v ? ' selected' : ''}>${o.t}</option>`;
+  // 自定义下拉：原生 <select> 的弹层由系统绘制，无法美化
+  const sortMenu = SORT_OPTIONS.map(function (o) {
+    const on = activeSort === o.v;
+    return `<li role="option" class="sort-option" data-value="${o.v}" aria-selected="${on}">
+        <span>${o.t}</span>
+        <svg class="sort-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m5 13 4 4L19 7"/>
+        </svg>
+      </li>`;
   }).join('');
 
   return `
@@ -161,11 +176,18 @@ function renderHeaderControls() {
           <kbd class="search-kbd" aria-hidden="true">/</kbd>
         </div>
 
-        <div class="sort-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/>
-          </svg>
-          <select id="sort-select" aria-label="排序方式">${sortOptions}</select>
+        <div class="sort-box" id="sort-box">
+          <button type="button" class="sort-trigger" id="sort-trigger"
+                  aria-haspopup="listbox" aria-expanded="false" aria-controls="sort-menu" aria-label="排序方式">
+            <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/>
+            </svg>
+            <span class="sort-label">${getSortLabel(activeSort)}</span>
+            <svg class="sort-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </button>
+          <ul class="sort-menu" id="sort-menu" role="listbox" aria-label="排序方式" hidden>${sortMenu}</ul>
         </div>
       </div>
     </div>
@@ -457,7 +479,10 @@ function renderCards() {
       <a href="./pages/detail.html?id=${g.id}" class="game-card" style="animation-delay: ${index * 0.04}s">
         <div class="card-cover">
           <div class="skeleton"></div>
-          <img src="${displayCover}" alt="${g.title}" loading="lazy"
+          <!-- 首屏前 9 张直接加载；其余先不设 src，由 IntersectionObserver 接近视口时再加载。
+               不用原生 loading="lazy"：Chrome 会因此输出
+               [Intervention] Images loaded lazily... 提示，且 load 事件被延迟。 -->
+          <img ${index < 9 ? `src="${displayCover}"` : ''} alt="${g.title}"
                class="cover-img is-loading" data-src="${displayCover}">
           <button class="card-fav-btn ${isFav ? 'is-fav' : ''}" data-id="${g.id}" title="${isFav ? '取消喜欢' : '加入喜欢'}">
             ${isFav ? '❤️' : '🤍'}
@@ -485,10 +510,14 @@ function renderCards() {
   syncCoverImages();
 }
 
-// 绑定骨架屏淡出：封面图加载完（或失败）就移除骨架，避免图未到之前空白
+// 绑定骨架屏淡出 + 懒加载封面
+// 说明：没有用原生 loading="lazy"，而是自己用 IntersectionObserver 控制，
+// 这样既不会触发 Chrome 的 [Intervention] 提示，也能精确控制加载时机。
 function syncCoverImages() {
   const grid = document.getElementById('game-grid');
   if (!grid) return;
+
+  const lazyList = [];
 
   grid.querySelectorAll('.cover-img').forEach(img => {
     const cover = img.closest('.card-cover');
@@ -499,8 +528,11 @@ function syncCoverImages() {
       if (cover) cover.classList.add('loaded');
     };
 
-    // 已经缓存命中的图片，complete 为 true 且 naturalWidth > 0
-    if (img.complete && img.naturalWidth > 0) {
+    if (!img.getAttribute('src')) {
+      // 还没有 src 的图片交给观察器，等接近视口再加载
+      lazyList.push(img);
+    } else if (img.complete && img.naturalWidth > 0) {
+      // 已经缓存命中的图片
       done();
     } else {
       img.addEventListener('load', done, { once: true });
@@ -508,6 +540,41 @@ function syncCoverImages() {
       img.addEventListener('error', done, { once: true });
     }
   });
+
+  if (!lazyList.length) return;
+
+  // 给懒加载图片挂上加载完成回调
+  lazyList.forEach(img => {
+    const cover = img.closest('.card-cover');
+    img.addEventListener('load', () => {
+      img.classList.remove('is-loading');
+      img.classList.add('is-loaded');
+      if (cover) cover.classList.add('loaded');
+    }, { once: true });
+    img.addEventListener('error', () => {
+      img.classList.remove('is-loading');
+      if (cover) cover.classList.add('loaded');
+    }, { once: true });
+  });
+
+  const loadNow = (img) => {
+    if (!img.getAttribute('src')) img.setAttribute('src', img.dataset.src);
+  };
+
+  if (!('IntersectionObserver' in window)) {
+    lazyList.forEach(loadNow);
+    return;
+  }
+
+  const io = new IntersectionObserver(function (entries, observer) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      loadNow(entry.target);
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: '400px 0px' });
+
+  lazyList.forEach(img => io.observe(img));
 }
 
 // ================= 页面初始化与事件绑定 =================
@@ -592,6 +659,13 @@ function bindAppEvents() {
     const moreBtn = e.target.closest('.filter-more-btn');
     if (moreBtn) { toggleGenreMore(moreBtn); return; }
 
+    // 2.1 排序下拉：展开 / 收起
+    if (e.target.closest('#sort-trigger')) { toggleSortMenu(); return; }
+
+    // 2.2 排序下拉：选中某一项
+    const sortOpt = e.target.closest('.sort-option');
+    if (sortOpt) { chooseSort(sortOpt.dataset.value); return; }
+
     // 3. 已选条件标签上的 ✕ / 清除全部
     const chip = e.target.closest('[data-clear]');
     if (chip) { clearOneCondition(chip.dataset.clear); return; }
@@ -633,12 +707,9 @@ function bindAppEvents() {
     syncUrlState();
   });
 
-  // ---------- 排序 ----------
-  appEl.addEventListener('change', function (e) {
-    if (e.target.id !== 'sort-select') return;
-    activeSort = e.target.value;
-    renderCards();
-    syncUrlState();
+  // ---------- 排序下拉：点空白处关闭 ----------
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#sort-box')) closeSortMenu();
   });
 
   // ---------- 顶部迷你搜索框（在 appEl 之外，单独绑一次） ----------
@@ -666,6 +737,66 @@ function bindAppEvents() {
 function updateChips() {
   const host = document.getElementById('active-chips-host');
   if (host) host.innerHTML = renderActiveChips();
+}
+
+// ================= 排序下拉 =================
+function openSortMenu(focusCurrent) {
+  const box = document.getElementById('sort-box');
+  const menu = document.getElementById('sort-menu');
+  const trigger = document.getElementById('sort-trigger');
+  if (!box || !menu || !trigger) return;
+
+  menu.hidden = false;
+  box.classList.add('open');
+  trigger.setAttribute('aria-expanded', 'true');
+
+  if (focusCurrent) {
+    const opts = [].slice.call(menu.querySelectorAll('.sort-option'));
+    opts.forEach(function (o) { o.classList.remove('focused'); });
+    const active = menu.querySelector('.sort-option[aria-selected="true"]') || opts[0];
+    if (active) active.classList.add('focused');
+  }
+}
+
+function closeSortMenu() {
+  const box = document.getElementById('sort-box');
+  const menu = document.getElementById('sort-menu');
+  const trigger = document.getElementById('sort-trigger');
+  if (!box || !menu || !trigger) return;
+
+  menu.hidden = true;
+  box.classList.remove('open');
+  trigger.setAttribute('aria-expanded', 'false');
+  menu.querySelectorAll('.sort-option.focused').forEach(function (o) {
+    o.classList.remove('focused');
+  });
+}
+
+function toggleSortMenu() {
+  const menu = document.getElementById('sort-menu');
+  if (!menu) return;
+  if (menu.hidden) openSortMenu(false);
+  else closeSortMenu();
+}
+
+// 选择排序方式：只更新按钮文字与选中态，不重渲染整个筛选区
+function chooseSort(value) {
+  if (!value) return;
+  activeSort = value;
+
+  const label = document.querySelector('.sort-label');
+  if (label) label.textContent = getSortLabel(value);
+
+  document.querySelectorAll('.sort-option').forEach(function (o) {
+    o.setAttribute('aria-selected', String(o.dataset.value === value));
+  });
+
+  renderCards();
+  syncUrlState();
+  closeSortMenu();
+
+  const trigger = document.getElementById('sort-trigger');
+  if (trigger) trigger.focus();
 }
 
 // 展开 / 收起类型折叠区
@@ -789,6 +920,47 @@ function bindKeyboardShortcuts() {
     const el = document.activeElement;
     const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ||
       el.tagName === 'SELECT' || el.isContentEditable);
+
+    // ===== 排序下拉打开时，键盘优先服务于下拉 =====
+    const menu = document.getElementById('sort-menu');
+    if (menu && !menu.hidden) {
+      const opts = [].slice.call(menu.querySelectorAll('.sort-option'));
+      const cur = opts.findIndex(function (o) { return o.classList.contains('focused'); });
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSortMenu();
+        const t = document.getElementById('sort-trigger');
+        if (t) t.focus();
+        return;
+      }
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        let next;
+        if (cur === -1) next = e.key === 'ArrowDown' ? 0 : opts.length - 1;
+        else next = (cur + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length;
+
+        opts.forEach(function (o) { o.classList.remove('focused'); });
+        opts[next].classList.add('focused');
+        return;
+      }
+
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const target = cur >= 0 ? opts[cur] : opts[0];
+        if (target) chooseSort(target.dataset.value);
+        return;
+      }
+    }
+
+    // 焦点在排序按钮上时，Enter / 空格 / 下箭头打开菜单
+    if (el && el.id === 'sort-trigger' &&
+        (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown')) {
+      e.preventDefault();
+      openSortMenu(true);
+      return;
+    }
 
     // Esc：清空搜索并失焦
     if (e.key === 'Escape') {

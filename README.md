@@ -75,11 +75,12 @@ python -m http.server 8000
 - 右上角悬浮爱心按钮，点击直接收藏 / 取消收藏，无需进入详情页
 - 鼠标悬停时封面放大 + 光影渐变
 - **骨架屏**：封面图加载前显示 shimmer 占位，加载完成后淡入
+- **自研懒加载**：首屏前 9 张直接加载，其余由 `IntersectionObserver` 在接近视口（提前 400px）时再设 `src`；不使用原生 `loading="lazy"`，避免 Chrome 输出 `[Intervention]` 提示与 load 事件延迟
 - **搜索命中高亮**：标题中命中的关键词用 `<mark>` 标黄
 
 ### 4.1 浏览效率
 
-- **排序**：默认 / 按时长 / 按评分 / 按名称，随时切换
+- **排序**：默认 / 按时长 / 按评分 / 按名称，**自定义下拉**（非原生 `select`），支持点击外部关闭、`↑` `↓` 选择、`Enter` 确认、`Esc` 关闭
 - **已选条件标签**：筛选栏下方列出当前生效的条件（关键词 / 收藏 / 平台 / 类型），点单个 `✕` 取消，或「清除全部」
 - **最近浏览**：详情页访问记录存入 `localStorage`，首页顶部出现「最近看过」横条（最多 5 条）
 - **筛选状态写进 URL**：`?q=&platform=&genre=&tab=&sort=`，刷新不丢、可直接分享，`history.replaceState` 实现且不产生历史堆栈
@@ -191,6 +192,7 @@ window.registerGame({
 - **图片路径**：`registry.js` 中使用 `./image/xxx.jpg`。首页直接引用；详情页的封面经由 `renderer.js` 处理，可正确指向 `../image/xxx.jpg`。`image/` 中部分文件名含大写字母（如 `CS2.jpg`、`The_last_of_us_1.jpg`），修改路径时需保持大小写一致。
 - **脚本加载顺序**：`registry.js` → `renderer.js` → `js/game/*.js` → 业务逻辑脚本，顺序不可颠倒。
 - **浏览器兼容**：推荐使用 Chrome / Edge / Firefox 最新版。项目使用了 `backdrop-filter`、`color` 相关现代特性与 Web Animations API，IE 及较老的浏览器内核不支持。
+- **浏览器扩展的日志**：若在开发者工具看到 `content-script-start.js` 报 "Could not establish connection"，通常来自浏览器扩展（如阅读模式、翻译插件），并非本项目代码，可忽略；`Live reload enabled` 来自 VS Code Live Server。
 - **主题色与首屏背景**：首屏背景由 CSS 渐变 + 极光 + 网格实时生成，会**完全跟随主题色**变化，不使用图片。`image/hero-bg.jpg` 仅作为社交分享（OG）缩略图保留。
 - **首屏动效性能**：光斑使用 GPU 合成层（`will-change: transform`），并在首屏滚出视口时自动暂停；低端设备或开启"减少动态效果"时会退化为静态配色。
 - **本地存储**：收藏状态存于 `localStorage` 的 `gv_favorites`，主题选择存于 `gv_theme`，最近浏览存于 `gv_recent`。清除浏览器数据会重置为默认值。
@@ -200,6 +202,7 @@ window.registerGame({
 
 | 版本 | 主要内容 |
 | --- | --- |
+| v4.8.0 | 排序框改为自定义下拉；新增内联 SVG favicon（消除 404）；改用 IntersectionObserver 自研懒加载（消除 Chrome Intervention 提示） |
 | v4.7.1 | 修复 `/` 快捷键"按了没反应"：改为聚焦当前可见的搜索框；焦点在筛选栏内时筛选栏不再自动收起 |
 | v4.7.0 | 上一款/下一款补充封面缩略图；页脚新增版本徽章（vX.Y.Z · 纯静态 · 零依赖） |
 | v4.6.0 | 浏览效率增强：排序、已选条件标签、搜索高亮、URL 状态同步、键盘快捷键、最近浏览、上一款/下一款、同类推荐、TOC 跟随高亮 |
