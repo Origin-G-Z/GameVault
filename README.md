@@ -192,7 +192,15 @@ window.registerGame({
 - **图片路径**：`registry.js` 中使用 `./image/xxx.jpg`。首页直接引用；详情页的封面经由 `renderer.js` 处理，可正确指向 `../image/xxx.jpg`。`image/` 中部分文件名含大写字母（如 `CS2.jpg`、`The_last_of_us_1.jpg`），修改路径时需保持大小写一致。
 - **脚本加载顺序**：`registry.js` → `renderer.js` → `js/game/*.js` → 业务逻辑脚本，顺序不可颠倒。
 - **浏览器兼容**：推荐使用 Chrome / Edge / Firefox 最新版。项目使用了 `backdrop-filter`、`color` 相关现代特性与 Web Animations API，IE 及较老的浏览器内核不支持。
-- **浏览器扩展的日志**：若在开发者工具看到 `content-script-start.js` 报 "Could not establish connection"，通常来自浏览器扩展（如阅读模式、翻译插件），并非本项目代码，可忽略；`Live reload enabled` 来自 VS Code Live Server。
+- **浏览器扩展的日志**：若在开发者工具看到两条红色错误
+  `Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.`
+  且来源为 `content-script-start.js`，那是 **AdGuard 广告拦截器**（或其他内容脚本类扩展）注入的代码。
+  该脚本注入在所有 `http/https` 页面上（`run_at: document_start`），会向其后台 Service Worker 发消息，
+  后台未就绪时就会抛此错。**与项目代码无关，无法由页面侧修复**。处理方式：
+  1. 直接双击 `index.html` 以 `file://` 方式打开 —— 扩展不匹配该协议，不会注入（也符合本项目的交付方式）
+  2. 或在 `edge://extensions` / `chrome://extensions` 中临时关闭该扩展
+  3. 或把 `localhost` / `127.0.0.1` 加入该扩展的白名单
+  - 另外 `Live reload enabled.` 来自 VS Code Live Server，并非本项目输出。
 - **主题色与首屏背景**：首屏背景由 CSS 渐变 + 极光 + 网格实时生成，会**完全跟随主题色**变化，不使用图片。`image/hero-bg.jpg` 仅作为社交分享（OG）缩略图保留。
 - **首屏动效性能**：光斑使用 GPU 合成层（`will-change: transform`），并在首屏滚出视口时自动暂停；低端设备或开启"减少动态效果"时会退化为静态配色。
 - **本地存储**：收藏状态存于 `localStorage` 的 `gv_favorites`，主题选择存于 `gv_theme`，最近浏览存于 `gv_recent`。清除浏览器数据会重置为默认值。
@@ -202,6 +210,7 @@ window.registerGame({
 
 | 版本 | 主要内容 |
 | --- | --- |
+| v4.8.1 | 文档：说明 `content-script-start.js` 报错来自 AdGuard 扩展，并给出去除方法 |
 | v4.8.0 | 排序框改为自定义下拉；新增内联 SVG favicon（消除 404）；改用 IntersectionObserver 自研懒加载（消除 Chrome Intervention 提示） |
 | v4.7.1 | 修复 `/` 快捷键"按了没反应"：改为聚焦当前可见的搜索框；焦点在筛选栏内时筛选栏不再自动收起 |
 | v4.7.0 | 上一款/下一款补充封面缩略图；页脚新增版本徽章（vX.Y.Z · 纯静态 · 零依赖） |
