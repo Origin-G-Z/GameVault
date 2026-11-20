@@ -809,14 +809,12 @@ function bindKeyboardShortcuts() {
     if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
 
     // /：聚焦搜索框
+    // 注意：页面内的搜索框在首屏下方，直接 focus 时浏览器不一定会滚动过去，
+    // 用户在首屏按 / 会"没有任何反应"。所以优先选当前可见的那个搜索框，
+    // 两个都不可见时（首屏）才滚动到筛选区再聚焦。
     if (e.key === '/') {
       e.preventDefault();
-      const target = document.getElementById('search-input') ||
-        document.getElementById('header-search-input');
-      if (target) {
-        target.focus();
-        target.select();
-      }
+      focusSearch();
       return;
     }
 
@@ -825,6 +823,50 @@ function bindKeyboardShortcuts() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
+}
+
+// 元素是否完整地落在视口内（顶部预留导航栏高度）
+function isFullyVisible(el) {
+  if (!el) return false;
+  const r = el.getBoundingClientRect();
+  return r.top >= 70 && r.bottom <= window.innerHeight;
+}
+
+// 智能聚焦搜索框
+function focusSearch() {
+  const headerSearch = document.getElementById('header-search-input');
+  const pageSearch = document.getElementById('search-input');
+
+  // 1) 页面内搜索框可见时优先用它（它带着排序、筛选上下文）
+  if (isFullyVisible(pageSearch)) {
+    // 保险：如果此刻筛选栏正在收起（动画途中），先把 hide 去掉，
+    // 否则输入框会在聚焦之后继续淡出，用户还是看不到它
+    const wrapper = pageSearch.closest('.filter-wrapper');
+    if (wrapper) wrapper.classList.remove('hide');
+
+    pageSearch.focus();
+    pageSearch.select();
+    return;
+  }
+
+  // 2) 否则用顶部常驻搜索框（始终可见，按下去立刻有反馈）
+  if (headerSearch) {
+    headerSearch.focus();
+    headerSearch.select();
+
+    // 若当前在首屏，顺手滚到游戏列表，让用户看到筛选结果
+    if (window.scrollY < getContentStartY()) {
+      scrollToGames();
+    }
+    return;
+  }
+
+  // 3) 兜底：聚焦页面内搜索框并把它滚进视野
+  if (pageSearch) {
+    pageSearch.focus({ preventScroll: true });
+    pageSearch.select();
+    pageSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 
@@ -923,7 +965,10 @@ function initScrollEffects() {
               }
             }
             // 确认向下且卡片快要贴上导航栏 -> 收起
-            if (direction === 1 && gridTopDistance < HIDE_AT) {
+            // 例外：焦点在筛选栏内（正在输入搜索词）时不能收起，
+            // 否则用户刚按 / 聚焦到的输入框会被一起藏起来，看起来像"按了没反应"
+            const focusInsideFilter = filterWrapper.contains(document.activeElement);
+            if (direction === 1 && gridTopDistance < HIDE_AT && !focusInsideFilter) {
               filterWrapper.classList.add('hide');
             }
           }
