@@ -302,3 +302,158 @@ tbody tr:nth-child(even) { background: #fafafa; }
   .game-tagline { font-size: 15px; margin-bottom: 12px; }
   .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; }
 }
+
+/* ===== 10. 侧边目录：跟随滚动高亮 ===== */
+.toc-link {
+  position: relative;
+}
+
+.toc-link.active {
+  color: var(--accent);
+  font-weight: 800;
+  transform: translateX(4px);
+}
+
+/* 当前章节在目录左侧的竖线指示 */
+.toc-link.active::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 1.1em;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* ===== 11. 上一款 / 下一款 ===== */
+.detail-nav {
+  max-width: 1100px;
+  margin: 56px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dv-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 190px;
+  padding: 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text);
+  text-decoration: none !important;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dv-link.next {
+  align-items: flex-end;
+  margin-left: auto;
+}
+
+.dv-link.is-empty {
+  border: none;
+  background: transparent;
+  min-width: 0;
+  padding: 0;
+}
+
+a.dv-link:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -12px rgba(var(--accent-rgb), 0.45);
+}
+
+.dv-dir {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+.dv-name {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* ===== 12. 同类推荐 ===== */
+.related {
+  max-width: 1100px;
+  margin: 44px auto 8px;
+}
+
+.related-title {
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  font-size: 19px;
+  color: var(--text);
+  border-bottom: 2px solid var(--line);
+}
+
+.related-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.related-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: inherit;
+  text-decoration: none !important;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.related-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px -14px rgba(var(--accent-rgb), 0.5);
+}
+
+.related-card img {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.related-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.related-name {
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.related-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .related-list { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .detail-nav { flex-direction: column; margin-top: 36px; }
+  .dv-link, .dv-link.next { align-items: flex-start; margin-left: 0; min-width: 0; }
+}

@@ -2,6 +2,13 @@
 const appEl = document.getElementById('app');
 const backToTopBtn = document.getElementById('back-to-top'); 
 
+// 转义用户可见文本，避免标题中的特殊字符破坏 HTML 结构
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
 function init() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
@@ -45,6 +52,8 @@ function init() {
     </div>
 
     ${renderGame(gameData, meta)}
+    ${renderDetailNav(id)}
+    ${renderRelated(id)}
   `;
 
   // 5. 绑定收藏按钮事件
@@ -69,10 +78,128 @@ function init() {
     });
   }
 
+  // 6. 记录到「最近浏览」
+  recordRecentView(id);
+
+  // 7. 侧边目录跟随滚动高亮
+  initTocSpy();
+
   // 更新标题并置顶
   document.title = `${gameData.title} · GameVault`;
   updateSocialMeta(gameData, meta);
   window.scrollTo(0, 0);
+}
+
+// ================= 最近浏览 =================
+// 与首页共用 gv_recent：最近看过的排在最前，最多保留 5 条
+function recordRecentView(id) {
+  try {
+    var list = JSON.parse(localStorage.getItem('gv_recent') || '[]');
+    list = list.filter(function (x) { return x !== id; });
+    list.unshift(id);
+    localStorage.setItem('gv_recent', JSON.stringify(list.slice(0, 5)));
+  } catch (e) {
+    /* 隐私模式下忽略 */
+  }
+}
+
+// ================= 上一款 / 下一款 =================
+function renderDetailNav(id) {
+  var idx = GAMES.findIndex(function (g) { return g.id === id; });
+  if (idx === -1) return '';
+
+  var prev = idx > 0 ? GAMES[idx - 1] : null;
+  var next = idx < GAMES.length - 1 ? GAMES[idx + 1] : null;
+
+  var prevHtml = prev
+    ? `<a class="dv-link prev" href="detail.html?id=${prev.id}">
+         <span class="dv-dir">← 上一款</span>
+         <span class="dv-name">${escapeHtml(prev.title)}</span>
+       </a>`
+    : '<span class="dv-link is-empty"></span>';
+
+  var nextHtml = next
+    ? `<a class="dv-link next" href="detail.html?id=${next.id}">
+         <span class="dv-dir">下一款 →</span>
+         <span class="dv-name">${escapeHtml(next.title)}</span>
+       </a>`
+    : '<span class="dv-link is-empty"></span>';
+
+  return `<nav class="detail-nav" aria-label="游戏导航">${prevHtml}${nextHtml}</nav>`;
+}
+
+// ================= 相关推荐 =================
+// 同类型里评分最高的 3 款（排除自己）
+function renderRelated(id) {
+  var current = GAMES.find(function (g) { return g.id === id; });
+  if (!current) return '';
+
+  var related = GAMES
+    .filter(function (g) {
+      if (g.id === id) return false;
+      return g.genres.some(function (gen) {
+        return current.genres.indexOf(gen) > -1;
+      });
+    })
+    .sort(function (a, b) { return (b.rating || 0) - (a.rating || 0); })
+    .slice(0, 3);
+
+  if (!related.length) return '';
+
+  var items = related.map(function (g) {
+    return `
+      <a class="related-card" href="detail.html?id=${g.id}">
+        <img src="..${g.cover.replace(/^\./, '')}" alt="${escapeHtml(g.title)}" loading="lazy">
+        <div class="related-info">
+          <span class="related-name">${escapeHtml(g.title)}</span>
+          <span class="related-meta">★ ${Number(g.rating).toFixed(1)} · ${g.hours} 小时</span>
+        </div>
+      </a>`;
+  }).join('');
+
+  return `
+    <section class="related" aria-label="相关推荐">
+      <h2 class="related-title">同类推荐</h2>
+      <div class="related-list">${items}</div>
+    </section>`;
+}
+
+// ================= 侧边目录滚动高亮 =================
+function initTocSpy() {
+  var links = [].slice.call(document.querySelectorAll('.toc-link'));
+  if (!links.length) return;
+
+  var map = {};
+  links.forEach(function (a) {
+    var hash = a.getAttribute('href') || '';
+    if (hash.charAt(0) === '#') map[hash.slice(1)] = a;
+  });
+
+  var heads = [].slice.call(document.querySelectorAll('.game-body h2[id]'));
+  if (!heads.length) return;
+
+  function activate(id) {
+    links.forEach(function (a) { a.classList.remove('active'); });
+    if (map[id]) map[id].classList.add('active');
+  }
+
+  if (!('IntersectionObserver' in window)) {
+    activate(heads[0].id);
+    return;
+  }
+
+  // 进入页面时先高亮第一章，避免目录一开始没有任何选中项
+  activate(heads[0].id);
+
+  // 以"顶部往下 120px 到 视口 55% 处"作为触发带，
+  // 保证高亮的是当前正在读的那一节，而不是刚露头的下一节
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) activate(entry.target.id);
+    });
+  }, { rootMargin: '-120px 0px -55% 0px', threshold: 0 });
+
+  heads.forEach(function (h) { observer.observe(h); });
 }
 
 // 根据当前游戏动态更新 SEO 描述与社交分享卡片信息

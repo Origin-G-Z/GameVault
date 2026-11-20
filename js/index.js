@@ -14,6 +14,116 @@ let activeTab = 'all';
 let activePlatform = '全部';
 let activeGenre = '全部';
 let searchQuery = '';
+let activeSort = 'default';   // default | hours | rating | title
+
+// ================= URL 状态同步 =================
+// 把筛选条件写进地址栏：刷新不丢、可分享、浏览器前进后退可用
+function readUrlState() {
+  const p = new URLSearchParams(window.location.search);
+  searchQuery = p.get('q') || '';
+  activePlatform = p.get('platform') || '全部';
+  activeGenre = p.get('genre') || '全部';
+  activeTab = p.get('tab') === 'fav' ? 'fav' : 'all';
+  const sort = p.get('sort');
+  activeSort = ['hours', 'rating', 'title'].indexOf(sort) > -1 ? sort : 'default';
+}
+
+function syncUrlState() {
+  const p = new URLSearchParams();
+  if (searchQuery) p.set('q', searchQuery);
+  if (activePlatform !== '全部') p.set('platform', activePlatform);
+  if (activeGenre !== '全部') p.set('genre', activeGenre);
+  if (activeTab === 'fav') p.set('tab', 'fav');
+  if (activeSort !== 'default') p.set('sort', activeSort);
+
+  const qs = p.toString();
+  try {
+    history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+  } catch (e) {
+    /* 个别环境（如某些 file:// 策略）不允许改写地址，忽略即可 */
+  }
+}
+
+// ================= 通用小工具 =================
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+// 把搜索命中的部分包成 <mark>，让用户一眼看到为什么被搜出来
+function highlightMatch(text, query) {
+  const safeText = escapeHtml(text);
+  if (!query) return safeText;
+
+  const haystack = String(text).toLowerCase();
+  const needle = String(query).toLowerCase();
+  let out = '';
+  let from = 0;
+
+  while (true) {
+    const pos = haystack.indexOf(needle, from);
+    if (pos === -1) {
+      out += escapeHtml(String(text).slice(from));
+      break;
+    }
+    out += escapeHtml(String(text).slice(from, pos));
+    out += '<mark class="hl">' + escapeHtml(String(text).slice(pos, pos + needle.length)) + '</mark>';
+    from = pos + needle.length;
+  }
+  return out;
+}
+
+// 排序：默认保留 registry 里的收录顺序
+function sortGames(list) {
+  const arr = list.slice();
+  if (activeSort === 'hours') {
+    arr.sort(function (a, b) { return (Number(b.hours) || 0) - (Number(a.hours) || 0); });
+  } else if (activeSort === 'rating') {
+    arr.sort(function (a, b) { return (Number(b.rating) || 0) - (Number(a.rating) || 0); });
+  } else if (activeSort === 'title') {
+    arr.sort(function (a, b) { return a.title.localeCompare(b.title, 'zh'); });
+  }
+  return arr;
+}
+
+// ================= 最近浏览 =================
+const RECENT_KEY = 'gv_recent';
+const RECENT_MAX = 5;
+
+function getRecentIds() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    return Array.isArray(raw) ? raw : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function renderRecentStrip() {
+  const ids = getRecentIds().filter(function (id) {
+    return GAMES.some(function (g) { return g.id === id; });
+  });
+  if (!ids.length) return '';
+
+  const items = ids.map(function (id) {
+    const g = GAMES.filter(function (x) { return x.id === id; })[0];
+    return `
+      <a class="recent-item" href="./pages/detail.html?id=${g.id}" title="${escapeHtml(g.title)}">
+        <img src="${g.cover}" alt="${escapeHtml(g.title)}" loading="lazy">
+        <span class="recent-name">${escapeHtml(g.title)}</span>
+      </a>`;
+  }).join('');
+
+  return `
+    <section class="recent-strip" aria-label="最近浏览">
+      <div class="recent-head">
+        <span class="recent-title">最近看过</span>
+        <span class="recent-hint">共 ${ids.length} 款</span>
+      </div>
+      <div class="recent-list">${items}</div>
+    </section>`;
+}
 
 // 累计游玩时长：由 registry.js 中每款游戏的 hours 字段实时求和，无需手动维护
 // 整数时不显示小数位（2077 而不是 2077.0），有小数时保留一位
@@ -24,6 +134,15 @@ const totalHours = Number.isInteger(totalHoursRaw)
 
 // ================= 渲染逻辑 =================
 function renderHeaderControls() {
+  const sortOptions = [
+    { v: 'default', t: '默认排序' },
+    { v: 'hours', t: '按时长' },
+    { v: 'rating', t: '按评分' },
+    { v: 'title', t: '按名称' }
+  ].map(function (o) {
+    return `<option value="${o.v}"${activeSort === o.v ? ' selected' : ''}>${o.t}</option>`;
+  }).join('');
+
   return `
     <div class="control-panel">
       <div class="tabs">
@@ -34,12 +153,46 @@ function renderHeaderControls() {
           ❤️ 我喜欢的 <span class="count" id="fav-count">${favorites.length}</span>
         </button>
       </div>
-      <div class="search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input type="text" id="search-input" placeholder="搜索游戏名称..." value="${searchQuery}">
+
+      <div class="control-right">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="text" id="search-input" placeholder="搜索游戏名称..." value="${escapeHtml(searchQuery)}" title="按 / 快速聚焦">
+          <kbd class="search-kbd" aria-hidden="true">/</kbd>
+        </div>
+
+        <div class="sort-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/>
+          </svg>
+          <select id="sort-select" aria-label="排序方式">${sortOptions}</select>
+        </div>
       </div>
     </div>
   `;
+}
+
+// 已选条件标签：点单个 ✕ 取消该条件，也可一键清除
+function renderActiveChips() {
+  const chips = [];
+  if (searchQuery) chips.push({ k: 'q', label: '关键词：' + searchQuery });
+  if (activeTab === 'fav') chips.push({ k: 'tab', label: '我喜欢的' });
+  if (activePlatform !== '全部') chips.push({ k: 'platform', label: '平台：' + activePlatform });
+  if (activeGenre !== '全部') chips.push({ k: 'genre', label: '类型：' + activeGenre });
+
+  if (!chips.length) return '';
+
+  const items = chips.map(function (c) {
+    return `<button class="active-chip" data-clear="${c.k}" title="取消该条件">
+      ${escapeHtml(c.label)}<span class="chip-x" aria-hidden="true">✕</span>
+    </button>`;
+  }).join('');
+
+  return `<div class="active-chips">
+    <span class="chips-label">筛选：</span>
+    ${items}
+    ${chips.length > 1 ? '<button class="chip-clear-all" data-clear="all">清除全部</button>' : ''}
+  </div>`;
 }
 
 // ================= 筛选按钮渲染 =================
@@ -175,6 +328,8 @@ function resetAllFilters() {
   if (pageSearch) pageSearch.value = '';
   if (headerSearch) headerSearch.value = '';
 
+  syncUrlState();
+
   // 清空搜索若导致列表重建，需要重新绑定骨架屏状态
   syncCoverImages();
 }
@@ -272,14 +427,14 @@ function renderCards() {
   const grid = document.getElementById('game-grid');
   if (!grid) return;
 
-  const filteredGames = GAMES.filter(g => {
+  const filteredGames = sortGames(GAMES.filter(g => {
     const isFav = favorites.includes(g.id);
     if (activeTab === 'fav' && !isFav) return false;
     if (activePlatform !== '全部' && !g.platforms.includes(activePlatform)) return false;
     if (activeGenre !== '全部' && !g.genres.includes(activeGenre)) return false;
     if (searchQuery && !g.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
-  });
+  }));
 
   if (filteredGames.length === 0) {
     grid.innerHTML = renderEmptyState();
@@ -309,7 +464,7 @@ function renderCards() {
           </button>
         </div>
         <div class="card-content">
-          <h2 class="card-title">${g.title} <span class="card-en">${g.en}</span></h2>
+          <h2 class="card-title">${highlightMatch(g.title, searchQuery)} <span class="card-en">${escapeHtml(g.en)}</span></h2>
           
           <div class="card-meta">
             <span class="meta-rating">★ ${rating}</span>
@@ -388,165 +543,288 @@ function initLibrary() {
         <div class="filter-divider"></div>
         ${renderFilterBtns(allPlatforms, activePlatform, 'platform')}
         ${renderFilterBtns(allGenres, activeGenre, 'genre')}
+        <div id="active-chips-host">${renderActiveChips()}</div>
       </div>
     </div>
+
+    ${renderRecentStrip()}
 
     <div class="game-grid" id="game-grid"></div>
   `;
 
   renderCards();
 
-  // 绑定 Tab
-  appEl.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.currentTarget;
-      activeTab = target.dataset.tab;
-      appEl.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      target.classList.add('active');
-      renderCards();
-    });
-  });
-
-  // 绑定搜索（页面内筛选框）
-  const searchInput = document.getElementById('search-input');
-  searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value.trim();
-    // 同步到顶部迷你搜索框
-    const headerInput = document.getElementById('header-search-input');
-    if (headerInput) headerInput.value = e.target.value;
-    renderCards();
-  });
-
-  // 绑定顶部迷你搜索框（与页面内搜索框双向同步）
+  // 同步顶部搜索框初始值（地址栏可能带 q 参数）
   const headerSearchInput = document.getElementById('header-search-input');
-  if (headerSearchInput) {
-    // 如果主页加载时带着 ?q= 参数（从详情页搜索跳转而来），自动填入
-    const q = new URLSearchParams(window.location.search).get('q');
-    if (q) {
-      searchQuery = q;
-      searchInput.value = q;
-      headerSearchInput.value = q;
+  if (headerSearchInput) headerSearchInput.value = searchQuery;
+
+  renderCards();
+  bindAppEvents();
+  bindKeyboardShortcuts();
+}
+
+// ================= 事件绑定（只绑一次） =================
+// appEl 是常驻节点，而 initLibrary 会被多次调用（如重置筛选）。
+// 所有委托监听都必须只绑一次，否则点击会被执行多次——
+// 典型症状是「更多」被连点两次，看起来像没反应。
+let appEventsBound = false;
+
+function bindAppEvents() {
+  if (appEventsBound) return;
+  appEventsBound = true;
+
+  // ---------- 点击委托 ----------
+  appEl.addEventListener('click', function (e) {
+    // 1. Tab 切换
+    const tabBtn = e.target.closest('.tab-btn');
+    if (tabBtn) {
+      activeTab = tabBtn.dataset.tab;
+      appEl.querySelectorAll('.tab-btn').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.tab === activeTab);
+      });
+      updateChips();
       renderCards();
+      syncUrlState();
+      return;
     }
 
-    headerSearchInput.addEventListener('input', (e) => {
-      searchQuery = e.target.value.trim();
-      // 同步到页面内筛选框
-      searchInput.value = e.target.value;
-      renderCards();
-
-      // 在首屏或列表上方搜索时，自动滚动到结果区，让用户看到搜索结果
-      const grid = document.getElementById('game-grid');
-      if (grid && window.scrollY < getContentStartY()) {
-        scrollToGames();
-      }
-    });
-  }
-
-  // 绑定筛选（用事件委托，覆盖「更多」展开后新出现的按钮）
-  appEl.addEventListener('click', (e) => {
-    // ① 点击「更多 / 收起」
+    // 2. 更多 / 收起
     const moreBtn = e.target.closest('.filter-more-btn');
-    if (moreBtn) {
-      genreExpanded = !genreExpanded;
+    if (moreBtn) { toggleGenreMore(moreBtn); return; }
 
-      if (genreExpanded) {
-        // 展开：只切类名，让 CSS 的 max-height 过渡自然展开（不重渲染，动画更顺滑）
-        moreBtn.classList.add('expanded');
-        moreBtn.setAttribute('aria-expanded', 'true');
-        const sp = moreBtn.querySelector('span');
-        if (sp) sp.textContent = '收起';
-        const chips = document.getElementById('genre-more-chips');
-        if (chips) chips.classList.add('open');
-      } else {
-        // 收起：先播放收起动画，动画结束后重新渲染类型区，
-        // 好让"当前选中的隐藏项"被提到可见区（否则用户看不到自己选了什么）
-        moreBtn.classList.remove('expanded');
-        moreBtn.setAttribute('aria-expanded', 'false');
-        const sp = moreBtn.querySelector('span');
-        if (sp) sp.textContent = '收起';
-        const chips = document.getElementById('genre-more-chips');
-        if (chips) chips.classList.remove('open');
+    // 3. 已选条件标签上的 ✕ / 清除全部
+    const chip = e.target.closest('[data-clear]');
+    if (chip) { clearOneCondition(chip.dataset.clear); return; }
 
-        setTimeout(function () {
-          // 仅重渲染类型这一组，保持平台组与卡片不动
-          const genreGroup = appEl.querySelector('.filter-group-genre');
-          if (!genreGroup) return;
-          const allPlatforms = [...new Set(GAMES.flatMap(g => g.platforms))];
-          const allGenres = [...new Set(GAMES.flatMap(g => g.genres))];
-          genreGroup.outerHTML = renderFilterBtns(allGenres, activeGenre, 'genre');
-        }, 400); // 与 CSS 收起时长 0.38s 对齐
+    // 4. 平台 / 类型筛选按钮
+    const filterBtn = e.target.closest('.filter-btn');
+    if (filterBtn && filterBtn.dataset.type) { onFilterClick(filterBtn); return; }
+
+    // 5. 空状态里的按钮
+    const emptyBtn = e.target.closest('[data-empty-action]');
+    if (emptyBtn) {
+      const act = emptyBtn.dataset.emptyAction;
+      if (act === 'reset' || act === 'show-all') {
+        resetAllFilters();
+        window.scrollTo({ top: getContentStartY(), behavior: 'smooth' });
+      } else if (act === 'lucky') {
+        rollLuckyGame();
       }
       return;
     }
 
-    // ② 点击具体筛选按钮
-    const btn = e.target.closest('.filter-btn');
-    if (!btn) return;
+    // 6. 卡片上的爱心
+    const favBtn = e.target.closest('.card-fav-btn');
+    if (favBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleFavorite(favBtn.dataset.id);
+    }
+  });
 
-    const type = btn.dataset.type;
-    const val = btn.dataset.val;
-    if (type === 'platform') activePlatform = val;
-    if (type === 'genre') {
-      activeGenre = val;
-      // 若选中的是折叠区里的标签，自动展开，让用户看到自己的选择
-      const inMore = btn.closest('#genre-more-chips');
-      if (inMore && !genreExpanded) {
-        genreExpanded = true;
-        const chips = document.getElementById('genre-more-chips');
-        if (chips) chips.classList.add('open');
-        const mb = document.getElementById('genre-more-btn');
-        if (mb) {
-          mb.classList.add('expanded');
-          mb.setAttribute('aria-expanded', 'true');
-          const sp = mb.querySelector('span');
-          if (sp) sp.textContent = '收起';
-        }
+  // ---------- 页面内搜索输入 ----------
+  appEl.addEventListener('input', function (e) {
+    if (e.target.id !== 'search-input') return;
+    searchQuery = e.target.value.trim();
+    const headerInput = document.getElementById('header-search-input');
+    if (headerInput) headerInput.value = e.target.value;
+    updateChips();
+    renderCards();
+    syncUrlState();
+  });
+
+  // ---------- 排序 ----------
+  appEl.addEventListener('change', function (e) {
+    if (e.target.id !== 'sort-select') return;
+    activeSort = e.target.value;
+    renderCards();
+    syncUrlState();
+  });
+
+  // ---------- 顶部迷你搜索框（在 appEl 之外，单独绑一次） ----------
+  const hs = document.getElementById('header-search-input');
+  if (hs) {
+    hs.addEventListener('input', function (e) {
+      searchQuery = e.target.value.trim();
+      const pageSearch = document.getElementById('search-input');
+      if (pageSearch) pageSearch.value = e.target.value;
+      updateChips();
+      renderCards();
+      syncUrlState();
+
+      // 还在首屏时就自动滚到结果区，否则用户看不到筛选结果
+      if (window.scrollY < getContentStartY()) scrollToGames();
+    });
+  }
+
+  // ---------- 随机推荐悬浮按钮（在 appEl 之外） ----------
+  const luckyBtn = document.getElementById('lucky-btn');
+  if (luckyBtn) luckyBtn.addEventListener('click', rollLuckyGame);
+}
+
+// 只刷新「已选条件」容器，避免整个筛选区重绘打断输入焦点
+function updateChips() {
+  const host = document.getElementById('active-chips-host');
+  if (host) host.innerHTML = renderActiveChips();
+}
+
+// 展开 / 收起类型折叠区
+function toggleGenreMore(moreBtn) {
+  genreExpanded = !genreExpanded;
+  const chips = document.getElementById('genre-more-chips');
+  const sp = moreBtn.querySelector('span');
+
+  if (genreExpanded) {
+    moreBtn.classList.add('expanded');
+    moreBtn.setAttribute('aria-expanded', 'true');
+    if (sp) sp.textContent = '收起';
+    if (chips) chips.classList.add('open');
+  } else {
+    moreBtn.classList.remove('expanded');
+    moreBtn.setAttribute('aria-expanded', 'false');
+    if (sp) sp.textContent = '收起';
+    if (chips) chips.classList.remove('open');
+
+    // 收起动画播完后重渲染类型区，把"当前选中的隐藏项"提回可见区
+    setTimeout(function () {
+      const genreGroup = appEl.querySelector('.filter-group-genre');
+      if (!genreGroup) return;
+      const allGenres = [...new Set(GAMES.flatMap(g => g.genres))];
+      genreGroup.outerHTML = renderFilterBtns(allGenres, activeGenre, 'genre');
+    }, 400);
+  }
+}
+
+// 点击平台 / 类型筛选按钮
+function onFilterClick(btn) {
+  const type = btn.dataset.type;
+  const val = btn.dataset.val;
+
+  if (type === 'platform') activePlatform = val;
+
+  if (type === 'genre') {
+    activeGenre = val;
+    // 选中的是折叠区里的标签时，自动展开让用户看到自己的选择
+    const inMore = btn.closest('#genre-more-chips');
+    if (inMore && !genreExpanded) {
+      genreExpanded = true;
+      const chips = document.getElementById('genre-more-chips');
+      if (chips) chips.classList.add('open');
+      const mb = document.getElementById('genre-more-btn');
+      if (mb) {
+        mb.classList.add('expanded');
+        mb.setAttribute('aria-expanded', 'true');
+        const s = mb.querySelector('span');
+        if (s) s.textContent = '收起';
       }
     }
+  }
 
-    appEl.querySelectorAll(`.filter-btn[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
-    appEl.querySelectorAll(`.filter-btn[data-type="${type}"][data-val="${CSS.escape(val)}"]`).forEach(b => b.classList.add('active'));
-    renderCards();
+  appEl.querySelectorAll('.filter-btn[data-type="' + type + '"]').forEach(function (b) {
+    b.classList.remove('active');
+  });
+  appEl.querySelectorAll('.filter-btn[data-type="' + type + '"][data-val="' + CSS.escape(val) + '"]')
+    .forEach(function (b) { b.classList.add('active'); });
+
+  updateChips();
+  renderCards();
+  syncUrlState();
+}
+
+// 取消单个筛选条件，或清除全部
+function clearOneCondition(kind) {
+  if (kind === 'all' || kind === 'q') searchQuery = '';
+  if (kind === 'all' || kind === 'tab') activeTab = 'all';
+  if (kind === 'all' || kind === 'platform') activePlatform = '全部';
+  if (kind === 'all' || kind === 'genre') activeGenre = '全部';
+
+  // 同步 Tab 与按钮高亮
+  appEl.querySelectorAll('.tab-btn').forEach(function (b) {
+    b.classList.toggle('active', b.dataset.tab === activeTab);
+  });
+  ['platform', 'genre'].forEach(function (t) {
+    const val = t === 'platform' ? activePlatform : activeGenre;
+    appEl.querySelectorAll('.filter-btn[data-type="' + t + '"]').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.val === val);
+    });
   });
 
-  // 绑定爱心收藏
-  document.getElementById('game-grid').addEventListener('click', (e) => {
-    const favBtn = e.target.closest('.card-fav-btn');
-    if (!favBtn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const id = favBtn.dataset.id;
-    const index = favorites.indexOf(id);
-    if (index > -1) favorites.splice(index, 1);
-    else favorites.push(id);
+  // 同步两处搜索框
+  const pageSearch = document.getElementById('search-input');
+  const headerSearch = document.getElementById('header-search-input');
+  if (pageSearch) pageSearch.value = searchQuery;
+  if (headerSearch) headerSearch.value = searchQuery;
 
-    localStorage.setItem('gv_favorites', JSON.stringify(favorites));
-    document.getElementById('fav-count').textContent = favorites.length;
-    document.getElementById('board-fav-count').textContent = favorites.length;
-    renderCards();
-  });
+  updateChips();
+  renderCards();
+  syncUrlState();
+}
 
-  // 绑定空状态里的操作按钮（清空筛选 / 查看全部 / 随机推荐）
-  appEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-empty-action]');
-    if (!btn) return;
-    const act = btn.dataset.emptyAction;
+// 收藏 / 取消收藏
+function toggleFavorite(id) {
+  const index = favorites.indexOf(id);
+  if (index > -1) favorites.splice(index, 1);
+  else favorites.push(id);
 
-    if (act === 'reset' || act === 'show-all') {
-      resetAllFilters();
-      window.scrollTo({ top: getContentStartY(), behavior: 'smooth' });
-    } else if (act === 'lucky') {
-      rollLuckyGame();
+  localStorage.setItem('gv_favorites', JSON.stringify(favorites));
+
+  const fc = document.getElementById('fav-count');
+  const bc = document.getElementById('board-fav-count');
+  if (fc) fc.textContent = favorites.length;
+  if (bc) bc.textContent = favorites.length;
+
+  renderCards();
+  updateChips();
+}
+
+// ================= 键盘快捷键 =================
+// / 聚焦搜索    Esc 清空搜索    g 回到顶部
+let keyboardBound = false;
+
+function bindKeyboardShortcuts() {
+  if (keyboardBound) return;
+  keyboardBound = true;
+
+  document.addEventListener('keydown', function (e) {
+    const el = document.activeElement;
+    const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ||
+      el.tagName === 'SELECT' || el.isContentEditable);
+
+    // Esc：清空搜索并失焦
+    if (e.key === 'Escape') {
+      if (!typing) return;
+      el.value = '';
+      el.blur();
+      searchQuery = '';
+      const pageSearch = document.getElementById('search-input');
+      const headerSearch = document.getElementById('header-search-input');
+      if (pageSearch) pageSearch.value = '';
+      if (headerSearch) headerSearch.value = '';
+      updateChips();
+      renderCards();
+      syncUrlState();
+      return;
+    }
+
+    if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // /：聚焦搜索框
+    if (e.key === '/') {
+      e.preventDefault();
+      const target = document.getElementById('search-input') ||
+        document.getElementById('header-search-input');
+      if (target) {
+        target.focus();
+        target.select();
+      }
+      return;
+    }
+
+    // g：回到顶部
+    if (e.key === 'g' || e.key === 'G') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
-
-  // 绑定随机推荐悬浮按钮
-  const luckyBtn = document.getElementById('lucky-btn');
-  if (luckyBtn && !luckyBtn.dataset.bound) {
-    luckyBtn.dataset.bound = '1';
-    luckyBtn.addEventListener('click', rollLuckyGame);
-  }
 }
 
 
@@ -676,6 +954,7 @@ function initScrollEffects() {
 
 // 启动
 document.addEventListener('DOMContentLoaded', () => {
-  initLibrary(); // 初始化游戏列表
+  readUrlState();   // 先从地址栏还原筛选条件（刷新 / 分享链接时生效）
+  initLibrary();    // 初始化游戏列表
   initScrollEffects(); // 初始化首屏滚动
 });
