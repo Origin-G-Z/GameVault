@@ -1,5 +1,75 @@
 /* css/index.css */
 
+/* ===== 全站氛围极光（参考 D 方案的流动光斑，垫在内容之下） ===== */
+.page-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;              /* 位于内容之下、页面底色之上 */
+  overflow: hidden;
+  pointer-events: none;
+  /* 独立合成层，避免滚动时整层重绘 */
+  contain: strict;
+}
+
+.amb-blob {
+  position: absolute;
+  border-radius: 50%;
+  /* 大半径模糊 + 低不透明度，形成柔和的色彩晕染 */
+  filter: blur(90px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.amb-1 {
+  width: 46vw;
+  height: 46vw;
+  left: -12vw;
+  top: -10vw;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), 0.55), transparent 64%);
+  animation: ambDrift1 34s ease-in-out infinite alternate;
+}
+
+.amb-2 {
+  width: 40vw;
+  height: 40vw;
+  right: -10vw;
+  top: 18vh;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-aux-rgb), 0.45), transparent 64%);
+  animation: ambDrift2 42s ease-in-out infinite alternate;
+}
+
+.amb-3 {
+  width: 44vw;
+  height: 44vw;
+  left: 30vw;
+  bottom: -18vw;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), 0.32), transparent 66%);
+  animation: ambDrift3 50s ease-in-out infinite alternate;
+}
+
+@keyframes ambDrift1 {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(6vw, 5vh, 0) scale(1.15); }
+}
+@keyframes ambDrift2 {
+  from { transform: translate3d(0, 0, 0) scale(1.08); }
+  to   { transform: translate3d(-7vw, 6vh, 0) scale(0.94); }
+}
+@keyframes ambDrift3 {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-9vw, -5vh, 0) scale(1.18); }
+}
+
+/* 系统要求减少动效时，停止漂移，仅保留静态色彩晕染 */
+@media (prefers-reduced-motion: reduce) {
+  .amb-blob { animation: none; }
+}
+
+/* 窄屏收敛一点，避免色彩过重压住内容 */
+@media (max-width: 768px) {
+  .amb-blob { filter: blur(64px); opacity: 0.42; }
+}
+
 /* ===== 顶部平滑氛围光晕（直接打在 #app 上层） ===== */
 #app {
   position: relative;
@@ -13,12 +83,10 @@
   transform: translateX(-50%);
   width: 100%;
   max-width: 1400px;
-  height: 780px;
-  /* 超大、极柔和的径向渐变，自然融入背景；随主题色变化 */
+  height: 620px;
+  /* 顶部一层很淡的中心光晕，与固定极光层配合，避免重复叠色过浓 */
   background:
-    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(var(--accent-rgb), 0.20) 0%, transparent 68%),
-    radial-gradient(ellipse 46% 42% at 12% 26%, rgba(var(--accent-aux-rgb), 0.10) 0%, transparent 70%),
-    radial-gradient(ellipse 46% 42% at 88% 18%, rgba(var(--accent-aux-rgb), 0.08) 0%, transparent 70%);
+    radial-gradient(ellipse 60% 52% at 50% 0%, rgba(var(--accent-rgb), 0.10) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
 }
