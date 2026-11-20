@@ -702,20 +702,162 @@
   align-items: center;
   text-align: center;
   overflow: hidden;
+  /* 兜底底色，背景层加载前也不会闪白 */
+  background: #080d18;
+  isolation: isolate;
+}
 
-  /* 首屏背景图：已改为本地图片，断网也能正常显示 */
-  /* 图片存放于 image/hero-bg.jpg，CSS 在 css/ 目录下，因此用 ../ 回到根目录 */
-  background-image: url('../image/hero-bg.jpg');
+/* ===== 首屏动态背景（全部随 --accent 变化） ===== */
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 70% at 50% 6%, rgba(var(--accent-rgb), 0.16), transparent 70%),
+    linear-gradient(180deg, #0b1220 0%, #0b1424 44%, #060a12 100%);
+}
 
-  /* 如果想换回网络图，可以注释掉上面一行，取消下面这行的注释 */
-  /* background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop'); */
+/* --- 1. 极光光斑：缓慢漂移 --- */
+.hero-aurora {
+  position: absolute;
+  inset: 0;
+  filter: blur(60px);
+  opacity: 0.82;
+}
 
-  background-size: cover;
-  background-position: center;
-  /* ⚠️ 注意：移除了 background-attachment: fixed，防止滚动卡顿 */
+.hero-aurora .blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
 
-  /* 遮罩已压暗到图片本身里了，这里只留一层极轻的叠加，保证白字清晰 */
-  box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, 0.18);
+.blob-1 {
+  width: 62%;
+  height: 112%;
+  left: -16%;
+  top: -30%;
+  background: radial-gradient(circle at 50% 50%, var(--accent), transparent 64%);
+  animation: heroDrift1 18s ease-in-out infinite alternate;
+}
+
+.blob-2 {
+  width: 52%;
+  height: 100%;
+  right: -14%;
+  top: -20%;
+  background: radial-gradient(circle at 50% 50%, var(--accent-aux), transparent 64%);
+  animation: heroDrift2 22s ease-in-out infinite alternate;
+}
+
+.blob-3 {
+  width: 36%;
+  height: 52%;
+  left: 34%;
+  top: 0;
+  opacity: 0.42;
+  background: radial-gradient(circle at 50% 50%, #ffffff, transparent 66%);
+  animation: heroDrift3 26s ease-in-out infinite alternate;
+}
+
+@keyframes heroDrift1 {
+  from { transform: translate3d(-4%, -3%, 0) scale(1); }
+  to   { transform: translate3d(8%, 5%, 0) scale(1.12); }
+}
+@keyframes heroDrift2 {
+  from { transform: translate3d(3%, 4%, 0) scale(1.05); }
+  to   { transform: translate3d(-7%, -4%, 0) scale(0.95); }
+}
+@keyframes heroDrift3 {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-6%, 8%, 0) scale(1.15); }
+}
+
+/* --- 2. 透视网格：持续向观察者滚动 --- */
+.hero-grid {
+  position: absolute;
+  left: -40%;
+  right: -40%;
+  bottom: -6%;
+  height: 46%;
+  background-image:
+    linear-gradient(rgba(var(--accent-rgb), 0.62) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--accent-rgb), 0.62) 1px, transparent 1px);
+  background-size: 72px 72px;
+  transform: perspective(300px) rotateX(57deg) scale(1.12);
+  transform-origin: bottom center;
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.75) 34%, transparent 62%);
+  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.75) 34%, transparent 62%);
+  animation: heroGridRun 4.6s linear infinite;
+}
+
+@keyframes heroGridRun {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 72px, 0 72px; }
+}
+
+/* --- 3. 地平线高光：缓慢呼吸 --- */
+/* 位置贴近底部：用 max() 保证在矮屏上也落在"下滑探索"按钮下方 */
+.hero-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(7%, 30px);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.95), transparent);
+  animation: heroHorizonPulse 6.5s ease-in-out infinite;
+}
+
+@keyframes heroHorizonPulse {
+  0%, 100% { opacity: 0.45; box-shadow: 0 0 20px 3px rgba(var(--accent-rgb), 0.22); }
+  50%      { opacity: 1;    box-shadow: 0 0 46px 11px rgba(var(--accent-rgb), 0.52); }
+}
+
+/* 矮屏上按钮离底边很近，地平线会擦到按钮，干脆隐藏这一层 */
+@media (max-height: 700px) {
+  .hero-horizon { display: none; }
+}
+
+/* --- 4. 缓慢扫过的高光 --- */
+.hero-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(104deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%);
+  mix-blend-mode: screen;
+  animation: heroSweep 9s ease-in-out infinite;
+}
+
+@keyframes heroSweep {
+  0%   { transform: translateX(-62%); opacity: 0; }
+  18%  { opacity: 0.9; }
+  62%  { opacity: 0.75; }
+  78%  { transform: translateX(62%); opacity: 0; }
+  100% { transform: translateX(62%); opacity: 0; }
+}
+
+/* --- 5. 四周压暗 --- */
+.hero-veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(74% 70% at 50% 46%, transparent 38%, rgba(4, 7, 16, 0.55) 100%);
+}
+
+/* 首屏滚出视口时暂停动画，省电、减少后台绘制 */
+#hero-section.hero-paused .blob,
+#hero-section.hero-paused .hero-grid,
+#hero-section.hero-paused .hero-horizon,
+#hero-section.hero-paused .hero-sweep {
+  animation-play-state: paused;
+}
+
+/* 系统开启"减少动态效果"时，保留静态配色但停止所有漂移 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-aurora .blob,
+  .hero-grid,
+  .hero-horizon,
+  .hero-sweep {
+    animation: none;
+  }
 }
 
 /* 首屏内容的视差容器 */

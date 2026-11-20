@@ -7,13 +7,14 @@
 
   var STORAGE_KEY = 'gv_theme';
 
-  // 可选主题：name 用于提示，accent 是主色，soft 是卡片光晕用的柔和色
+  // 可选主题：name 用于提示，accent 是主色，soft 是柔和色，
+  // aux 是首屏极光的第二配色（让光晕层次更丰富）
   var THEMES = [
-    { id: 'indigo',  name: '靛蓝', accent: '#6366f1', soft: '#818cf8' },
-    { id: 'emerald', name: '翡翠', accent: '#10b981', soft: '#34d399' },
-    { id: 'amber',   name: '琥珀', accent: '#f59e0b', soft: '#fbbf24' },
-    { id: 'rose',    name: '玫红', accent: '#f43f5e', soft: '#fb7185' },
-    { id: 'ocean',   name: '海蓝', accent: '#0ea5e9', soft: '#38bdf8' }
+    { id: 'indigo',  name: '靛蓝', accent: '#6366f1', soft: '#818cf8', aux: '#8b5cf6' },
+    { id: 'emerald', name: '翡翠', accent: '#10b981', soft: '#34d399', aux: '#06b6d4' },
+    { id: 'amber',   name: '琥珀', accent: '#f59e0b', soft: '#fbbf24', aux: '#f97316' },
+    { id: 'rose',    name: '玫红', accent: '#f43f5e', soft: '#fb7185', aux: '#ec4899' },
+    { id: 'ocean',   name: '海蓝', accent: '#0ea5e9', soft: '#38bdf8', aux: '#6366f1' }
   ];
 
   function hexToRgb(hex) {
@@ -35,6 +36,8 @@
     root.style.setProperty('--accent', t.accent);
     root.style.setProperty('--accent-soft', t.soft);
     root.style.setProperty('--accent-rgb', hexToRgb(t.accent));
+    root.style.setProperty('--accent-aux', t.aux);
+    root.style.setProperty('--accent-aux-rgb', hexToRgb(t.aux));
     root.setAttribute('data-theme', t.id);
     return t;
   }

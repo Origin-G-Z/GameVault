@@ -8,7 +8,7 @@
   <title>GameVault 游戏鉴赏库 | 个人游戏档案与深度评测</title>
 
   <!-- ================= SEO 基础信息 ================= -->
-  <meta name="description" content="GameVault 是一个纯前端的个人游戏鉴赏库，收录 31 款游戏，包含深度评测长文、平台与类型多维筛选、关键词搜索与收藏功能。">
+  <meta name="description" content="GameVault 是一个纯前端的个人游戏鉴赏库，收录 31 款游戏，包含简单评测长文、平台与类型多维筛选、关键词搜索与收藏功能。">
   <meta name="keywords" content="GameVault,游戏鉴赏,游戏评测,游戏库,单机游戏,FPS,模拟经营,竞速,Web前端">
   <meta name="author" content="高梓源">
 
@@ -16,12 +16,12 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GameVault">
   <meta property="og:title" content="GameVault 游戏鉴赏库">
-  <meta property="og:description" content="记录我的游玩足迹，分享深度体验。收录 31 款游戏的深度评测。">
+  <meta property="og:description" content="记录我的游玩足迹，分享游戏体验。收录 31 款游戏的简单评测。">
   <meta property="og:image" content="./image/hero-bg.jpg">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="GameVault 游戏鉴赏库">
-  <meta name="twitter:description" content="记录我的游玩足迹，分享深度体验。">
+  <meta name="twitter:description" content="记录我的游玩足迹，分享游戏体验。">
   <meta name="twitter:image" content="./image/hero-bg.jpg">
 
   <link rel="stylesheet" href="./css/style.css">
@@ -64,9 +64,27 @@
   <main>
     <!-- 全屏首屏视觉区 -->
     <section id="hero-section">
+      <!-- 主题色动态背景：全部由 CSS 生成，随主题色实时变化 -->
+      <div class="hero-backdrop" aria-hidden="true">
+        <!-- 极光光斑 -->
+        <div class="hero-aurora">
+          <span class="blob blob-1"></span>
+          <span class="blob blob-2"></span>
+          <span class="blob blob-3"></span>
+        </div>
+        <!-- 向前滚动的透视网格 -->
+        <div class="hero-grid"></div>
+        <!-- 地平线高光 -->
+        <div class="hero-horizon"></div>
+        <!-- 缓慢扫过的高光 -->
+        <div class="hero-sweep"></div>
+        <!-- 四周压暗，保证白色文字清晰 -->
+        <div class="hero-veil"></div>
+      </div>
+
       <div class="hero-content">
         <h1 class="hero-title">GameVault</h1>
-        <p class="hero-subtitle">记录我的游玩足迹，分享深度体验。</p>
+        <p class="hero-subtitle">记录我的游玩足迹，分享游戏体验。</p>
         <button id="scroll-down-btn" class="scroll-hint">下滑探索</button>
       </div>
     </section>

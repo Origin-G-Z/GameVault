@@ -584,6 +584,16 @@ function initScrollEffects() {
   if (scrollHint) scrollHint.addEventListener('click', scrollToGames);
   if (exploreBtn) exploreBtn.addEventListener('click', scrollToGames);
 
+  // 首屏滚出视口时暂停背景动画：省电，也避免看不见的地方持续重绘
+  if (heroSection && 'IntersectionObserver' in window) {
+    const heroObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        heroSection.classList.toggle('hero-paused', !entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+    heroObserver.observe(heroSection);
+  }
+
   // 监听滚动，控制动画和按钮显隐
   let ticking = false;
   let lastScrollY = window.scrollY; // 记录上一次的滚动位置
