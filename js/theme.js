@@ -29,6 +29,20 @@
     ].join(', ');
   }
 
+  // 把两个十六进制颜色按权重混合，用于从主色派生"浅色调"背景
+  function mixHex(baseHex, tintHex, weight) {
+    var a = baseHex.replace('#', '');
+    var b = tintHex.replace('#', '');
+    var out = '#';
+    for (var i = 0; i < 3; i++) {
+      var av = parseInt(a.substr(i * 2, 2), 16);
+      var bv = parseInt(b.substr(i * 2, 2), 16);
+      var v = Math.round(av * (1 - weight) + bv * weight);
+      out += ('0' + v.toString(16)).slice(-2);
+    }
+    return out;
+  }
+
   // 把主题应用到根元素
   function applyTheme(id) {
     var t = THEMES.filter(function (x) { return x.id === id; })[0] || THEMES[0];
@@ -38,6 +52,12 @@
     root.style.setProperty('--accent-rgb', hexToRgb(t.accent));
     root.style.setProperty('--accent-aux', t.aux);
     root.style.setProperty('--accent-aux-rgb', hexToRgb(t.aux));
+
+    // 由主色派生出整站的浅色调，让列表页也能看出主题变化
+    root.style.setProperty('--bg', mixHex('#f8fafc', t.accent, 0.08));
+    root.style.setProperty('--panel-2', mixHex('#f1f5f9', t.accent, 0.07));
+    root.style.setProperty('--line', mixHex('#e2e8f0', t.accent, 0.12));
+
     root.setAttribute('data-theme', t.id);
     return t;
   }
